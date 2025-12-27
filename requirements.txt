@@ -1,6 +1,5 @@
 streamlit
 pandas
-openpyxl
+st-gsheets-connection
 python-dateutil
 plotly
-st-gsheets-connection
