@@ -10,7 +10,7 @@ import plotly.express as px
 st.set_page_config(page_title="SUBS_FLOW_ULTIMATE", layout="wide")
 
 # Link dial Google Sheet dialek
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfL4nwhdJCZYd9GZa22MS69knWR9qc1aDTAFLinQ/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfl4nwhdJCZYd9gZa22MS69knWR9qC1aDTAFLinQ/edit?usp=sharing"
 
 # Connection l Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -161,3 +161,4 @@ with tab3:
         st.success("✅ Kolchi khallass! Ma-3ndek 7ta rappel dabba.")
 
 st.sidebar.caption("OMEGA ULTIMATE V3 - THE GOD MODE")
+
