@@ -11,12 +11,12 @@ st.set_page_config(page_title="SUBS_FLOW_PRO_PLATFORM", layout="wide", page_icon
 
 # --- 1. CONFIGURATION MASTER (S-SAROUT DIAL FATIMA) ---
 # 7etti hna l-ID dial MASTER_ADMIN s-sheet jdid
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
+Master_Admin = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWFbF9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE/edit" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_master():
-    return conn.read(spreadsheet=MASTER_ID, ttl=0)
+    return conn.read(spreadsheet=Master_Admin, ttl=0)
 
 # --- 2. LOGIN SYSTEM SAAS ---
 if "auth" not in st.session_state:
@@ -42,7 +42,7 @@ if "auth" not in st.session_state:
     st.stop()
 
 # --- 3. LOAD DATA DIAL L-KLYAN (The Tenant) ---
-CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit?usp=sharing"
+CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit"
 
 def load_data():
     raw = conn.read(spreadsheet=CLIENT_URL, ttl=0)
@@ -122,6 +122,7 @@ with t3:
             col2.link_button("📲 Rappeler", url)
     else:
         st.success("Tout est clean.")
+
 
 
 
