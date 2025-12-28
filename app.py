@@ -42,7 +42,7 @@ if "auth" not in st.session_state:
     st.stop()
 
 # --- 3. LOAD DATA DIAL L-KLYAN (The Tenant) ---
-CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit"
+CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit?usp=sharing"
 
 def load_data():
     raw = conn.read(spreadsheet=CLIENT_URL, ttl=0)
@@ -122,6 +122,7 @@ with t3:
             col2.link_button("📲 Rappeler", url)
     else:
         st.success("Tout est clean.")
+
 
 
 
