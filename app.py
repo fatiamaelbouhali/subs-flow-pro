@@ -7,8 +7,8 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V17 - TOTAL CLARITY
-st.set_page_config(page_title="SUBS_FLOW_PRO_MASTER", layout="wide")
+# SYSTEM STATUS: OMEGA V18 - THE FINAL BOSS OF PERMISSIONS
+st.set_page_config(page_title="SUBS_FLOW_PRO_EMPIRE", layout="wide")
 
 def get_gspread_client():
     scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
@@ -20,7 +20,18 @@ client = get_gspread_client()
 
 # --- LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.title("🏦 SaaS Empire Login")
+    st.title("🏦 Plateforme Management Pro")
+    
+    # DIAGNOSTIC SIDEBAR
+    with st.sidebar:
+        st.subheader("🕵️ Diagnostic OMEGA")
+        try:
+            files = [s.title for s in client.openall()]
+            st.write("Fichiers accessibles:", files)
+            if len(files) < 2:
+                st.error("⚠️ Khass t-zidi l-email f Share dial Database_Subs !")
+        except: st.error("API Error")
+
     u_in = st.text_input("Identifiant Business:")
     p_in = st.text_input("Mot de passe:", type="password")
     
@@ -43,52 +54,37 @@ if "auth" not in st.session_state:
             st.error(f"❌ Error Master: {e}")
     st.stop()
 
-# --- LOAD DATA (THE CRITICAL PART) ---
+# --- LOAD DATA ---
 try:
-    # 💡 SCAN FILES: Bach Fatima t-chouf chnou katchouf l-app
-    available_files = [s.title for s in client.openall()]
-    if "Database_Subs" not in available_files:
-        st.sidebar.error("🚨 Database_Subs n'est pas partagée !")
-        st.sidebar.info(f"Ajoute cet email dans Share de Database_Subs:\n{st.secrets['connections']['gsheets']['client_email']}")
-    
     c_sheet = client.open_by_key(st.session_state["sheet_id"]).sheet1
     df = pd.DataFrame(c_sheet.get_all_records())
 except Exception as e:
-    st.error(f"❌ Impossible d'ouvrir la base de données client.")
-    st.code(f"Error detail: {e}")
+    st.error(f"❌ Impossible d'ouvrir la base de données. ID: {st.session_state['sheet_id']}")
+    st.info(f"💡 Diri Share m3a dak l-email f s-Sheet dialek!")
+    if st.button("Déconnexion"):
+        del st.session_state["auth"]
+        st.rerun()
     st.stop()
 
-# --- REST OF UI ---
+# --- INTERFACE ---
 today = datetime.now().date()
-st.sidebar.success(f"User: {st.session_state['user']}")
+st.sidebar.success(f"Connecté: {st.session_state['user']}")
 if st.sidebar.button("Déconnexion"):
     del st.session_state["auth"]
     st.rerun()
 
-t1, t2, t3 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS", "🔔 ALERTES"])
-
+t1, t2 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS"])
 with t1:
     if not df.empty:
         df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
-        st.metric("Revenue Global", f"{df['Prix'].sum()} DH")
+        st.metric("Revenue Total", f"{df['Prix'].sum()} DH")
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service'), use_container_width=True)
 
 with t2:
     st.header("Gestion Clients")
     edited = st.data_editor(df, use_container_width=True, num_rows="dynamic")
-    if st.button("💾 Sauvegarder Changes"):
+    if st.button("💾 Sauvegarder modifications"):
         c_sheet.clear()
         c_sheet.update([df.columns.values.tolist()] + edited.values.tolist())
         st.success("✅ Database Updated!")
         st.rerun()
-
-with t3:
-    st.header("WhatsApp Alertes")
-    if not df.empty:
-        df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-        df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 100)
-        alerts = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
-        for _, r in alerts.iterrows():
-            st.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            wa = f"https://wa.me/{r['Phone']}?text=Bonjour {r['Nom']}, renouvellement {r['Service']}?"
-            st.link_button(f"📲 Rappeler", wa)
