@@ -12,7 +12,7 @@ st.set_page_config(page_title="SUBS_FLOW_PRO_SaaS", layout="wide", page_icon="�
 
 # --- 1. CONFIGURATION MASTER ---
 # ID dial MASTER_ADMIN dial Fatima nichan
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
+MASTER_ID ="1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
 
 def get_gspread_client():
     scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
@@ -37,13 +37,19 @@ if "auth" not in st.session_state:
             master_sheet = client.open_by_url(master_url).sheet1
             m_data = master_sheet.get_all_records()
             
+            if st.button("Se Connecter"):
+        try:
+            # OPEN BY KEY NICHAN BACH N-HNAW MN 404
+            master_sheet = client.open_by_key(MASTER_ID).get_worksheet(0)
+            m_data = master_sheet.get_all_records()
+            
             if not m_data:
                 st.error("❌ Master Sheet khawya!")
                 st.stop()
                 
             m_df = pd.DataFrame(m_data)
-            # Match user & pass
-            user_row = m_df[(m_df['User'] == u_in) & (m_df['Password'].astype(str) == str(p_in))]
+            # Match user & pass (Force type to String)
+            user_row = m_df[(m_df['User'].astype(str) == str(u_in)) & (m_df['Password'].astype(str) == str(p_in))]
             
             if not user_row.empty:
                 if user_row.iloc[0]['Status'] == 'Active':
@@ -144,3 +150,4 @@ with t3:
                     st.markdown("---")
         else:
             st.success("Tout est à jour.")
+
