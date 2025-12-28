@@ -11,7 +11,7 @@ st.set_page_config(page_title="SUBS_FLOW_PRO_PLATFORM", layout="wide", page_icon
 
 # --- 1. CONFIGURATION MASTER (S-SAROUT DIAL FATIMA) ---
 # 7etti hna l-ID dial MASTER_ADMIN s-sheet jdid
-MASTER_ID = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWFbF9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE/edit" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
+MASTER_ID = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWFbF9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE/edit?gid=0" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
@@ -122,5 +122,6 @@ with t3:
             col2.link_button("📲 Rappeler", url)
     else:
         st.success("Tout est clean.")
+
 
 
