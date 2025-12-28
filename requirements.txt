@@ -1,6 +1,6 @@
 streamlit
 pandas
-st-gsheets-connection
+gspread
+google-auth
 python-dateutil
 plotly
-
