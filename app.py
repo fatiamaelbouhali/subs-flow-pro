@@ -157,3 +157,4 @@ with tab4:
             st.success("Database Cleaned!")
     elif admin_pwd:
         st.error("Dégage! Ma-3ndekch s-sarout hna.")
+
