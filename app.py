@@ -10,7 +10,7 @@ import plotly.express as px
 st.set_page_config(page_title="SUBS_FLOW_ULTIMATE_V4", layout="wide")
 
 # Link dial Google Sheet dialek a Fatima
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfL4nwhdJCZYd9GZa22MS69knWR9qc1aDTAFLinQ/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfl4nwhdJCZYd9gZa22MS69knWR9qC1aDTAFLinQ/edit"
 
 # Connection l Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -157,5 +157,6 @@ with tab4:
             st.success("Database Cleaned!")
     elif admin_pwd:
         st.error("Dégage! Ma-3ndekch s-sarout hna.")
+
 
 
