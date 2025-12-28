@@ -7,8 +7,8 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# OMEGA STATUS: V21 - THE ULTIMATE UNBREAKABLE SaaS
-st.set_page_config(page_title="SUBS_FLOW_EMPIRE_PRO", layout="wide", page_icon="💎")
+# OMEGA STATUS: V22 - THE PERFECTION SaaS
+st.set_page_config(page_title="SUBS_FLOW_EMPIRE_V22", layout="wide", page_icon="💎")
 
 def get_gspread_client():
     scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
@@ -37,7 +37,7 @@ if "auth" not in st.session_state:
                     st.session_state["user"] = u_in
                     st.session_state["target_sheet"] = str(match.iloc[0]['Sheet_Name']).strip()
                     st.rerun()
-                else: st.error("🚫 Accès Suspendu. Contactez Master Fatima.")
+                else: st.error("🚫 Accès Suspendu.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e:
             st.error(f"❌ Error Master: {e}")
@@ -52,15 +52,25 @@ except Exception as e:
     st.error(f"❌ Impossible d'ouvrir la base: {st.session_state['target_sheet']}")
     st.stop()
 
-# --- DATA CLEANING & AUTO-CALC ---
+# --- HARD DATA CLEANING & AUTO-CALC ---
+today = datetime.now().date()
+
 if not df.empty:
+    # Force Email if missing
+    if 'Email' not in df.columns: df['Email'] = ""
+    # Hard Type Casting (Ant-Error)
     for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
         if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
+    
     df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
+    df['Durée (Mois)'] = pd.to_numeric(df['Durée (Mois)'], errors='coerce').fillna(1)
+    
+    # Process Dates
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
     df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.date
-    today = datetime.now().date()
-    df['Jours Restants'] = (pd.to_datetime(df['Date Fin']).dt.date - today).apply(lambda x: x.days if pd.notnull(x) else 0)
+    
+    # 💡 AUTO-CALC: Jours Restants & Mois
+    df['Jours Restants'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
     df['Mois'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.strftime('%B %Y').fillna("N/A")
 
 # --- UI INTERFACE ---
@@ -72,13 +82,13 @@ if st.sidebar.button("Déconnexion"):
 t1, t2, t3 = st.tabs(["📊 DASHBOARD", "👥 GESTION CLIENTS", "🔔 ALERTES"])
 
 with t1:
-    st.header("Financial Dashboard")
+    st.header("Financial Performance")
     if not df.empty:
         c1, c2, c3 = st.columns(3)
-        c1.metric("Revenue Total", f"{df['Prix'].sum()} DH")
+        c1.metric("Revenue Global", f"{df['Prix'].sum()} DH")
         c2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
-        c3.metric("Relances", len(df[(df['Jours Restants'] <= 3) & (df['Status'] == 'Actif')]))
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service', title="Revenue par Service"), use_container_width=True)
+        c3.metric("Relances (3j)", len(df[(df['Jours Restants'] <= 3) & (df['Status'] == 'Actif')]))
+        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service', title="Chiffre d'affaires / Service"), use_container_width=True)
 
 with t2:
     st.header("Gestion de la Base")
@@ -91,45 +101,48 @@ with t2:
         with cb:
             s_list = ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"]
             s_choice = st.selectbox("Service", s_list)
-            # 💡 LOGIC AUTRE:
+            # 💡 LOGIC AUTRE (BACK):
             final_s = st.text_input("Préciser le service") if s_choice == "Autre" else s_choice
             n_prix = st.number_input("Prix (DH)", min_value=0, step=5)
         with cc:
-            n_deb = st.date_input("Date de Début", datetime.now().date())
+            n_deb = st.date_input("Date de Début", today)
             n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
             n_stat = st.selectbox("Status", ["Actif", "Payé", "En Attente"])
 
         if st.button("🚀 Enregistrer au Cloud"):
             if n_nom and n_phone and final_s:
-                # 💡 CALCUL DATE FIN
+                # 💡 AUTO-CALC DATE FIN
                 n_fin = n_deb + relativedelta(months=int(n_dur))
-                # Append Row nichan k list
                 new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
                 c_sheet_obj.append_row(new_r)
-                st.success(f"✅ {n_nom} t-zad f Google Sheets!")
+                st.success(f"✅ {n_nom} t-zad nichan f Google Sheets!")
                 st.rerun()
 
     st.markdown("---")
-    # Data Editor m9add
-    edited = st.data_editor(df, use_container_width=True, num_rows="dynamic", 
-                            disabled=["Jours Restants", "Mois", "Date Fin"])
-    
-    if st.button("💾 Sauvegarder les modifications"):
-        final_df = edited.drop(columns=['Jours Restants', 'Mois'], errors='ignore')
-        c_sheet_obj.clear()
-        c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.values.tolist())
-        st.success("✅ Cloud Synced!")
-        st.rerun()
+    # Data Editor avec colonnes virtuelles
+    if not df.empty:
+        # On définit l'ordre des colonnes pour que ça soit PRO
+        cols_order = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Jours Restants", "Status"]
+        edited = st.data_editor(df[cols_order], use_container_width=True, num_rows="dynamic", 
+                                disabled=["Jours Restants", "Date Fin"])
+        
+        if st.button("💾 Sauvegarder les modifications"):
+            # Cleanup avant d'envoyer à Google
+            final_df = edited.drop(columns=['Jours Restants', 'Mois'], errors='ignore')
+            c_sheet_obj.clear()
+            c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.values.tolist())
+            st.success("✅ Google Sheets Synchro!")
+            st.rerun()
 
 with t3:
-    st.header("WhatsApp Alertes")
+    st.header("WhatsApp Smart Rappels")
     if not df.empty:
         alerts = df[(df['Jours Restants'] <= 3) & (df['Status'] == 'Actif')]
         if not alerts.empty:
             for _, r in alerts.iterrows():
                 col1, col2 = st.columns([3, 1])
-                col1.warning(f"👤 **{r['Nom']}** | ⏳ **{r['Jours Restants']} jours**")
-                msg = f"Bonjour {r['Nom']}, renouvellement {r['Service']}? Expire le {r['Date Fin']}"
+                col1.warning(f"👤 **{r['Nom']}** | ⏳ **{r['Jours Restants']} jours** (Expire le: {r['Date Fin']})")
+                msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} va expirer bientôt. Voulez-vous renouveler ?"
                 wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}"
                 col2.link_button("📲 Rappeler", wa)
-        else: st.success("Tout est à jour.")
+        else: st.success("Aucun rappel urgent.")
