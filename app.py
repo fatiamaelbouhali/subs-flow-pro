@@ -10,7 +10,7 @@ import plotly.express as px
 st.set_page_config(page_title="SUBS_FLOW_PRO_ULTIMATE", layout="wide", page_icon="👑")
 
 # Link dial Google Sheet dial Fatima
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfL4nwhdJCZYd9GZa22MS69knWR9qc1aDTAFLinQ/edit?usp=sharing"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfl4nwhdJCZYd9gZa22MS69knWR9qC1aDTAFLinQ/edit"
 
 # Connection l Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -185,5 +185,6 @@ with tab4:
         st.download_button("📥 Backup Database (CSV)", df.to_csv(index=False), "backup.csv", "text/csv")
     elif admin_pwd:
         st.error("Accès non autorisé.")
+
 
 
