@@ -11,12 +11,12 @@ st.set_page_config(page_title="SUBS_FLOW_PRO_PLATFORM", layout="wide", page_icon
 
 # --- 1. CONFIGURATION MASTER (S-SAROUT DIAL FATIMA) ---
 # 7etti hna l-ID dial MASTER_ADMIN s-sheet jdid
-Master_Admin = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWFbF9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE/edit" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
+MASTER_ID = "1j8FOrpIcWFbF9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE" # <--- BEDDLI HADA B L-ID DIAL MASTER SHEET
 
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_master():
-    return conn.read(spreadsheet=Master_Admin, ttl=0)
+    return conn.read(spreadsheet=MASTER_ID, ttl=0)
 
 # --- 2. LOGIN SYSTEM SAAS ---
 if "auth" not in st.session_state:
@@ -122,9 +122,3 @@ with t3:
             col2.link_button("📲 Rappeler", url)
     else:
         st.success("Tout est clean.")
-
-
-
-
-
-
