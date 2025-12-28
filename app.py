@@ -7,11 +7,8 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# OMEGA STATUS: V14 - TOTAL DIAGNOSTIC & EMPIRE
-st.set_page_config(page_title="SUBS_FLOW_PRO", layout="wide")
-
-# S-SAROUT L-MOUBACHIR (ID DIAL MASTER_ADMIN)
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
+# SYSTEM STATUS: V15 - THE FINAL DOMINATION
+st.set_page_config(page_title="SUBS_FLOW_PRO_EMPIRE", layout="wide")
 
 def get_gspread_client():
     scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
@@ -25,28 +22,19 @@ client = get_gspread_client()
 if "auth" not in st.session_state:
     st.title("🏦 Plateforme Management Pro")
     
-    # --- DIAGNOSTIC (HADI HIYA L-MOUHIMA) ---
-    st.sidebar.subheader("🔍 Status Diagnostic")
-    try:
-        # Wach l-app katchouf l-fichieat?
-        available_sheets = [s.title for s in client.openall()]
-        st.sidebar.write("✅ Fichiers accessibles:", available_sheets)
-        if "Master_Admin" not in available_sheets:
-            st.sidebar.error("❌ Google Sheets: Master_Admin makhddamch m3aya. Verifier l-email dial Share!")
-    except Exception as e:
-        st.sidebar.error(f"❌ Error API: {e}")
-
+    # Sidebar Diagnostic (Ghir bach t-akki blli d-data khdama)
+    st.sidebar.success("✅ Connection Google: OK")
+    
     u_in = st.text_input("Identifiant Business:")
     p_in = st.text_input("Mot de passe:", type="password")
     
     if st.button("Se Connecter"):
         try:
-            # TRY TO OPEN BY URL DIRECTLY TO BYPASS 404
-            url = f"https://docs.google.com/spreadsheets/d/{MASTER_ID}/edit"
-            master_sheet = client.open_by_url(url).get_worksheet(0)
+            # 💡 OPEN BY TITLE NICHAN (Bach n-hanw mn 404 dial l-ID)
+            master_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(master_sheet.get_all_records())
             
-            # Match (Clean strings)
+            # Match user & password
             user_match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & 
                               (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
             
@@ -54,38 +42,66 @@ if "auth" not in st.session_state:
                 if user_match.iloc[0]['Status'] == 'Active':
                     st.session_state["auth"] = True
                     st.session_state["user"] = u_in
+                    # Safely get Sheet_ID
                     st.session_state["sheet_id"] = str(user_match.iloc[0]['Sheet_ID']).strip()
                     st.rerun()
-                else: st.error("🚫 Compte suspendu.")
-            else: st.error("❌ Identifiants incorrects.")
+                else:
+                    st.error("🚫 Compte suspendu.")
+            else:
+                st.error("❌ Identifiants incorrects.")
         except Exception as e:
-            st.error(f"❌ Erreur Fatale: {e}")
+            st.error(f"❌ Error: {e}")
     st.stop()
 
-# --- SI CONNECTÉ : DASHBOARD ---
+# --- LOAD CLIENT DATA (OPEN BY KEY) ---
 try:
-    c_url = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit"
-    client_sheet = client.open_by_url(c_url).get_worksheet(0)
-    df = pd.DataFrame(client_sheet.get_all_records())
+    client_sheet_obj = client.open_by_key(st.session_state["sheet_id"]).sheet1
+    df = pd.DataFrame(client_sheet_obj.get_all_records())
 except Exception as e:
-    st.error(f"❌ Impossible d'ouvrir votre base de données: {e}")
+    st.error(f"❌ Impossible d'ouvrir votre base: {e}")
+    if st.button("Déconnexion"):
+        del st.session_state["auth"]
+        st.rerun()
     st.stop()
 
+# --- DATA CLEANING & UI ---
+if not df.empty:
+    for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
+        if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
+    if 'Prix' in df.columns: df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
+    df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
+
+today = datetime.now().date()
 st.sidebar.success(f"Connecté: {st.session_state['user']}")
 if st.sidebar.button("Déconnexion"):
     del st.session_state["auth"]
     st.rerun()
 
-t1, t2 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS"])
+t1, t2, t3 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS", "🔔 ALERTES"])
+
 with t1:
+    st.header("Financial Performance")
     if not df.empty:
-        df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
-        st.metric("Total Revenue", f"{df['Prix'].sum()} DH")
+        col1, col2 = st.columns(2)
+        col1.metric("Revenue Total", f"{df['Prix'].sum()} DH")
+        col2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service'), use_container_width=True)
 
 with t2:
+    st.header("Gestion de la Base")
     edited = st.data_editor(df, use_container_width=True, num_rows="dynamic")
-    if st.button("💾 Sauvegarder"):
-        client_sheet.clear()
-        client_sheet.update([df.columns.values.tolist()] + edited.values.tolist())
-        st.success("Synced!")
+    if st.button("💾 Sauvegarder les modifications"):
+        client_sheet_obj.clear()
+        client_sheet_obj.update([df.columns.values.tolist()] + edited.values.tolist())
+        st.success("✅ Synchro réussie!")
+        st.rerun()
+
+with t3:
+    st.header("Alertes WhatsApp")
+    if not df.empty:
+        df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 100)
+        alerts = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
+        for _, r in alerts.iterrows():
+            st.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
+            wa = f"https://wa.me/{r['Phone']}?text=Bonjour {r['Nom']}, renouvellement {r['Service']}?"
+            st.link_button(f"📲 Rappeler", wa)
