@@ -6,11 +6,11 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: ULTIMATE PRIVATE EDITION
-st.set_page_config(page_title="SUBS_FLOW_PRO", layout="wide")
+# OMEGA STATUS: SAAS GOD MODE ACTIVATED
+st.set_page_config(page_title="SUBS_FLOW_ULTIMATE_V4", layout="wide")
 
-# Link dial Google Sheet dialek
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfl4nwhdJCZYd9gZa22MS69knWR9qC1aDTAFLinQ/edit?usp=sharing"
+# Link dial Google Sheet dialek a Fatima
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1iBxqfL4nwhdJCZYd9GZa22MS69knWR9qc1aDTAFLinQ/edit?usp=sharing"
 
 # Connection l Google Sheets
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -20,16 +20,16 @@ def load_data():
 
 # --- LOGIN SYSTEM ---
 if "password_correct" not in st.session_state:
-    st.title("🔒 Accès Privé")
-    pwd = st.text_input("Dakhli s-sarout bach t-7elli l-app:", type="password")
-    if st.button("Se Connecter"):
+    st.title("🔒 Private Management System")
+    pwd = st.text_input("Dakhl lcode dialek a Hnaya:", type="password")
+    if st.button("Unlock Power"):
         if pwd == "fatima2025":
             st.session_state["password_correct"] = True
             st.rerun()
-        else: st.error("❌ Code ghalat!")
+        else: st.error("❌ Code ghalat! Zyr m3aya.")
     st.stop()
 
-# --- DATA PRE-PROCESSING ---
+# --- DATA PROCESSING ---
 df = load_data()
 if not df.empty:
     df['Date Fin'] = pd.to_datetime(df['Date Fin']).dt.date
@@ -39,109 +39,121 @@ if not df.empty:
     df['Mois'] = pd.to_datetime(df['Date Début']).dt.strftime('%B %Y')
 
 # --- UI TABS ---
-tab1, tab2, tab3 = st.tabs(["📊 TABLEAU DE BORD", "👥 GESTION CLIENTS", "🔔 ALERTES RENOUVELLEMENT"])
+tab1, tab2, tab3, tab4 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS", "🔔 RAPPELS", "👑 ADMIN"])
 
 # ==========================================
-# TAB 1: DASHBOARD
+# TAB 1: DASHBOARD (Flooos Visualization)
 # ==========================================
 with tab1:
-    st.header("💰 Analyse des Revenus")
+    st.header("💰 Analyse Financière")
     if not df.empty:
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Revenue Total", f"{df['Prix'].sum()} DH")
-        col2.metric("Abonnements Actifs", len(df[df['Status'] == 'Actif']))
-        col3.metric("Abonnements Payés", len(df[df['Status'] == 'Payé']))
-        col4.metric("Revenue du Mois", f"{df[df['Mois'] == today.strftime('%B %Y')]['Prix'].sum()} DH")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Revenue Global", f"{df['Prix'].sum()} DH")
+        c2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
+        c3.metric("Emails Collectés", len(df[df['Email'].notna()]))
+        c4.metric("Revenue ce Mois", f"{df[df['Mois'] == today.strftime('%B %Y')]['Prix'].sum()} DH")
 
         st.markdown("---")
         g1, g2 = st.columns(2)
         with g1:
-            fig_service = px.bar(df, x='Service', y='Prix', color='Service', title="Chiffre d'affaires par Service", text_auto=True)
+            fig_service = px.bar(df, x='Service', y='Prix', color='Service', title="Revenue par Service", text_auto=True)
             st.plotly_chart(fig_service, use_container_width=True)
         with g2:
-            fig_status = px.pie(df, names='Status', title="Répartition des Clients by Status", hole=0.5)
-            st.plotly_chart(fig_status, use_container_width=True)
-    else:
-        st.info("Aucune donnée disponible.")
+            fig_pie = px.pie(df, names='Status', title="Répartition des Clients", hole=0.4)
+            st.plotly_chart(fig_pie, use_container_width=True)
 
 # ==========================================
-# TAB 2: GESTION CLIENTS
+# TAB 2: CLIENTS (With Email)
 # ==========================================
 with tab2:
-    st.header("👥 Liste des Abonnements")
+    st.header("👥 Gestion des Abonnements")
     with st.expander("➕ Ajouter un nouveau client"):
-        c_a, c_b, c_c = st.columns(3)
-        with c_a:
+        ca, cb, cc = st.columns(3)
+        with ca:
             nom = st.text_input("Nom Complet")
             phone = st.text_input("WhatsApp (ex: 2126...)")
-        with c_b:
-            service_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-            final_service = st.text_input("Smiyat s-service") if service_choice == "Autre" else service_choice
-        with c_c:
+            email = st.text_input("Email") # ZDNA EMAIL HNA
+        with cb:
+            service = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
+            final_s = st.text_input("Préciser Service") if service == "Autre" else service
             prix = st.number_input("Prix (DH)", min_value=0, step=5)
-            duree = st.number_input("Durée (en Mois)", min_value=1, value=1)
-            date_debut = st.date_input("Date de Début", today)
+        with cc:
+            date_d = st.date_input("Date Début", today)
+            duree = st.number_input("Durée (Mois)", min_value=1, value=1)
+            status = st.selectbox("Status", ["Actif", "En Attente", "Payé", "Annulé", "Renouveler"])
 
-        status_init = st.selectbox("Status Initial", ["Actif", "En Attente", "Payé", "Annulé", "Renouveler"])
-        
-        if st.button("🚀 Enregistrer dans le Cloud"):
+        if st.button("🚀 Sauvegarder"):
             if nom and phone:
-                date_fin_calc = date_debut + relativedelta(months=int(duree))
+                date_f = date_d + relativedelta(months=int(duree))
                 new_row = pd.DataFrame([{
-                    "Nom": nom, "Phone": str(phone), "Service": final_service, 
-                    "Prix": prix, "Date Début": str(date_debut), 
-                    "Durée (Mois)": duree, "Date Fin": str(date_fin_calc), "Status": status_init
+                    "Nom": nom, "Phone": str(phone), "Email": email, "Service": final_s, 
+                    "Prix": prix, "Date Début": str(date_d), 
+                    "Durée (Mois)": duree, "Date Fin": str(date_f), "Status": status
                 }])
-                new_df = pd.concat([df.drop(columns=['Jours Restants', 'Mois']) if not df.empty else df, new_row], ignore_index=True)
+                new_df = pd.concat([df.drop(columns=['Jours Restants', 'Mois'], errors='ignore') if not df.empty else df, new_row], ignore_index=True)
                 conn.update(spreadsheet=SHEET_URL, data=new_df)
-                st.success("✅ Client ajouté avec succès!")
+                st.success("✅ Client t-zad f Google Sheets!")
                 st.rerun()
 
     st.markdown("---")
-    search = st.text_input("🔍 Rechercher un client...")
-    if search:
-        df_view = df[df['Nom'].str.contains(search, case=False, na=False) | df['Phone'].astype(str).str.contains(search)]
-    else:
-        df_view = df
-
     edited_df = st.data_editor(
-        df_view,
+        df,
         column_config={
             "Status": st.column_config.SelectboxColumn("Status", options=["Actif", "En Attente", "Payé", "Annulé", "Renouveler"]),
-            "Prix": st.column_config.NumberColumn("Prix (DH)", format="%d DH"),
+            "Email": st.column_config.TextColumn("Email Client"),
         },
         disabled=["Jours Restants", "Mois", "Date Fin"],
         use_container_width=True,
         num_rows="dynamic"
     )
 
-    if st.button("💾 Sauvegarder les modifications"):
-        final_df = edited_df.drop(columns=['Jours Restants', 'Mois'], errors='ignore')
-        conn.update(spreadsheet=SHEET_URL, data=final_df)
-        st.success("✅ Google Sheets mis à jour!")
+    if st.button("💾 Enregistrer les modifications"):
+        save_df = edited_df.drop(columns=['Jours Restants', 'Mois'], errors='ignore')
+        conn.update(spreadsheet=SHEET_URL, data=save_df)
+        st.success("✅ Synchro Nadiya!")
         st.rerun()
 
 # ==========================================
-# TAB 3: ALERTES (FIXED)
+# TAB 3: RAPPELS (The Alert System)
 # ==========================================
 with tab3:
-    st.header("🔔 Prochains Renouvellements")
-    # Alerts bach t-bban l n-nass li b9at lihom 3 jours ou r9el
+    st.header("🔔 Alerts WhatsApp")
+    # Alerts l ga3 n-nass li b9at lihom 3 jours ou r9el
     alerts_df = df[(df['Jours Restants'] <= 3) & (df['Status'].isin(['Actif', 'Payé']))]
     
     if not alerts_df.empty:
-        st.warning(f"Attention: {len(alerts_df)} abonnements arrivent à échéance bientôt.")
+        st.warning(f"3ndek {len(alerts_df)} rappels khasshoum i-t-tiriw!")
         for _, row in alerts_df.iterrows():
-            col_1, col_2, col_3 = st.columns([2, 1, 1])
-            with col_1:
-                st.write(f"👤 **{row['Nom']}** | 📺 {row['Service']} | ⏳ **{row['Jours Restants']} jours**")
-            with col_2:
-                msg = f"Bonjour {row['Nom']}, votre abonnement {row['Service']} expire le {row['Date Fin']}. Voulez-vous renouveler ?"
-                wa_url = f"https://wa.me/{row['Phone']}?text={urllib.parse.quote(msg)}"
-                st.link_button("📲 Rappel WhatsApp", wa_url)
-            with col_3:
-                st.write(f"Date Fin: **{row['Date Fin']}**")
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.write(f"👤 **{row['Nom']}** | 📺 {row['Service']} | ⏳ **{row['Jours Restants']} j**")
+                st.caption(f"Email: {row['Email']}")
+            with col2:
+                msg = f"Bonjour {row['Nom']}, votre abonnement {row['Service']} expire le {row['Date Fin']}. On renouvelle?"
+                url = f"https://wa.me/{row['Phone']}?text={urllib.parse.quote(msg)}"
+                st.link_button("📲 Rappeler", url)
             st.markdown("---")
     else:
-        st.success("✅ Aucun rappel pour le moment.")
+        st.success("✅ Kolchi khallass dabba.")
 
+# ==========================================
+# TAB 4: 👑 ADMIN (God Mode)
+# ==========================================
+with tab4:
+    st.header("👑 Admin Control Panel")
+    admin_pwd = st.text_input("Dakhli s-sarout d l-Admin a Fatima:", type="password")
+    if admin_pwd == "omega2025":
+        st.success("Bienvenue Master Fatima. Hna katchoufi l-moussi9a dial s-s7i7.")
+        st.write("### 💎 Advanced Stats")
+        st.write(f"- **Top Service:** {df['Service'].mode()[0] if not df.empty else 'N/A'}")
+        st.write(f"- **Taux de Payement:** {round((len(df[df['Status'] == 'Payé']) / len(df)) * 100)}% dial l-klyan")
+        
+        # Backup CSV
+        st.download_button("📥 Backup Database (CSV)", df.to_csv(index=False), "backup_pro.csv", "text/csv")
+        
+        if st.button("🧹 Nettoyer les Doublons"):
+            df_clean = df.drop_duplicates(subset=['Phone', 'Service'])
+            conn.update(spreadsheet=SHEET_URL, data=df_clean)
+            st.success("Database Cleaned!")
+    elif admin_pwd:
+        st.error("Dégage! Ma-3ndekch s-sarout hna.")
