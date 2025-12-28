@@ -7,11 +7,11 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA FINAL V8 - THE UNBREAKABLE SAAS
-st.set_page_config(page_title="SUBS_FLOW_PRO_PLATFORM", layout="wide", page_icon="🏦")
+# SYSTEM STATUS: OMEGA V9 - THE UNSTOPPABLE SaaS
+st.set_page_config(page_title="SUBS_FLOW_PRO_SaaS", layout="wide", page_icon="🏦")
 
-# --- 1. CONFIGURATION MASTER (S-SAROUT DIAL FATIMA) ---
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
+# MASTER URL (L-Link l-kamel bach Google mat-t-lefch)
+MASTER_URL = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE/edit"
 
 def get_gspread_client():
     scope = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
@@ -21,121 +21,99 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 2. LOGIN SYSTEM SAAS ---
+# --- LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.title("🏦 Plateforme de Gestion Pro")
-    st.subheader("Accès Partenaires")
+    st.title("🏦 Plateforme Management Pro")
     u_in = st.text_input("Identifiant Business:")
     p_in = st.text_input("Mot de passe:", type="password")
     
     if st.button("Se Connecter"):
         try:
-            # Connect l l-Master Sheet sghir
-            master_sheet = client.open_by_key(MASTER_ID).get_worksheet(0)
-            m_data = master_sheet.get_all_records()
+            # 💡 TEST CONNECTION MASTER
+            master_sheet = client.open_by_url(MASTER_URL).get_worksheet(0)
+            m_df = pd.DataFrame(master_sheet.get_all_records())
             
-            if not m_data:
-                st.error("❌ Master Sheet khawya!")
-            else:
-                m_df = pd.DataFrame(m_data)
-                # Match user & pass
-                user_row = m_df[(m_df['User'].astype(str) == str(u_in)) & (m_df['Password'].astype(str) == str(p_in))]
-                
-                if not user_row.empty:
-                    if user_row.iloc[0]['Status'] == 'Active':
-                        st.session_state["auth"] = True
-                        st.session_state["user"] = u_in
-                        st.session_state["sheet_id"] = user_row.iloc[0]['Sheet_ID']
-                        st.rerun()
-                    else:
-                        st.error("🚫 Accès Suspendu.")
+            # Match user & password
+            user_match = m_df[(m_df['User'].astype(str) == str(u_in)) & (m_df['Password'].astype(str) == str(p_in))]
+            
+            if not user_match.empty:
+                if user_match.iloc[0]['Status'] == 'Active':
+                    st.session_state["auth"] = True
+                    st.session_state["user"] = u_in
+                    st.session_state["sheet_id"] = user_match.iloc[0]['Sheet_ID']
+                    st.rerun()
                 else:
-                    st.error("❌ Identifiants incorrects.")
+                    st.error("🚫 Compte suspendu.")
+            else:
+                st.error("❌ Identifiants incorrects.")
+        except gspread.exceptions.SpreadsheetNotFound:
+            st.error("❌ Google goul lik: Had l-Master Sheet mal9itouch. Share l-email d'abord!")
         except Exception as e:
-            st.error(f"❌ Error Master: {e}")
+            st.error(f"❌ Error Diagnostic: {e}")
     st.stop()
 
-# --- 3. LOAD CLIENT DATA (SI CONNECTÉ) ---
+# --- LOAD CLIENT DATA ---
 try:
-    client_sheet_obj = client.open_by_key(st.session_state["sheet_id"]).get_worksheet(0)
-    raw_data = client_sheet_obj.get_all_records()
-    df = pd.DataFrame(raw_data)
+    c_url = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit"
+    client_sheet = client.open_by_url(c_url).get_worksheet(0)
+    df = pd.DataFrame(client_sheet.get_all_records())
 except Exception as e:
-    st.error(f"❌ Error Client Sheet: {e}")
+    st.error(f"❌ Error Client Sheet (Check ID or Share): {e}")
     st.stop()
 
-# --- DATA CLEANING (ANTI-ERROR) ---
+# --- DATA CLEANING ---
 if not df.empty:
-    if 'Email' not in df.columns: df['Email'] = ""
-    for col in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
-        if col in df.columns: df[col] = df[col].astype(str).replace('nan', '')
+    for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
+        if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
     if 'Prix' in df.columns: df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-    df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.date
+    today = datetime.now().date()
+    df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 100)
 
-today = datetime.now().date()
-
-# --- 4. INTERFACE UI ---
+# --- UI TABS ---
 st.sidebar.title(f"👤 {st.session_state['user']}")
-if st.sidebar.button("Se déconnecter"):
+if st.sidebar.button("Déconnexion"):
     del st.session_state["auth"]
     st.rerun()
 
 t1, t2, t3 = st.tabs(["📊 DASHBOARD", "👥 CLIENTS", "🔔 ALERTES"])
 
-# TAB 1: ANALYTICS
 with t1:
-    st.header("Analyse Financière")
+    st.header("Analyse Business")
     if not df.empty:
-        c1, c2 = st.columns(2)
-        c1.metric("Revenue Total", f"{df['Prix'].sum()} DH")
-        c2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service', title="Revenue par Service"), use_container_width=True)
-    else:
-        st.info("Aucune donnée.")
+        col1, col2 = st.columns(2)
+        col1.metric("Total DH", f"{df['Prix'].sum()} DH")
+        col2.metric("Actifs", len(df[df['Status'] == 'Actif']))
+        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Service'), use_container_width=True)
 
-# TAB 2: MANAGEMENT
 with t2:
-    st.header("Gestion de la Base")
+    st.header("Gestion Clients")
     with st.expander("➕ Nouveau Client"):
-        ca, cb, cc = st.columns(3)
-        with ca:
-            n_nom = st.text_input("Nom")
-            n_phone = st.text_input("WhatsApp")
-        with cb:
-            n_serv = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-            n_prix = st.number_input("Prix", min_value=0)
-        with cc:
-            n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
-        
-        if st.button("🚀 Enregistrer au Cloud"):
-            if n_nom and n_phone:
-                n_fin = today + relativedelta(months=int(n_dur))
-                new_row = [n_nom, n_phone, "", n_serv, n_prix, str(today), n_dur, str(n_fin), "Actif"]
-                client_sheet_obj.append_row(new_row)
-                st.success("✅ Client ajouté!")
-                st.rerun()
+        c_a, c_b = st.columns(2)
+        n_nom = c_a.text_input("Nom")
+        n_phone = c_a.text_input("Phone")
+        n_serv = c_b.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "IPTV", "Disney+", "Autre"])
+        n_prix = c_b.number_input("Prix", min_value=0)
+        if st.button("🚀 Ajouter au Google Sheet"):
+            n_fin = datetime.now().date() + relativedelta(months=1)
+            new_r = [n_nom, n_phone, "", n_serv, n_prix, str(datetime.now().date()), 1, str(n_fin), "Actif"]
+            client_sheet.append_row(new_r)
+            st.success("✅ Synced!")
+            st.rerun()
 
     st.markdown("---")
     edited = st.data_editor(df, use_container_width=True, num_rows="dynamic")
-    if st.button("💾 Sauvegarder les changements"):
-        client_sheet_obj.clear()
-        client_sheet_obj.update([df.columns.values.tolist()] + edited.values.tolist())
-        st.success("✅ Google Sheets Synced!")
+    if st.button("💾 Sauvegarder Changes"):
+        client_sheet.clear()
+        client_sheet.update([df.columns.values.tolist()] + edited.values.tolist())
+        st.success("✅ Cloud Updated!")
         st.rerun()
 
-# TAB 3: ALERTES
 with t3:
-    st.header("Rappels de Renouvellement")
+    st.header("Alertes WhatsApp")
     if not df.empty:
-        df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 100)
         alerts = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
-        if not alerts.empty:
-            for _, r in alerts.iterrows():
-                with st.container():
-                    st.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} jours restants")
-                    msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire bientôt. On renouvelle?"
-                    st.link_button(f"📲 Rappeler", f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}")
-                    st.markdown("---")
-        else:
-            st.success("Tout est à jour.")
+        for _, r in alerts.iterrows():
+            st.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
+            wa = f"https://wa.me/{r['Phone']}?text=Bonjour {r['Nom']}, renouvellement {r['Service']}?"
+            st.link_button(f"📲 Rappeler {r['Nom']}", wa)
