@@ -16,7 +16,7 @@ MASTER_ID = "https://docs.google.com/spreadsheets/d/1j8FOrpIcWFbF9UJcBRP1BpY4JJi
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 def load_master():
-    return conn.read(spreadsheets=MASTER_ID, ttl=0)
+    return conn.read(spreadsheet=MASTER_ID, ttl=0)
 
 # --- 2. LOGIN SYSTEM SAAS ---
 if "auth" not in st.session_state:
@@ -42,7 +42,7 @@ if "auth" not in st.session_state:
     st.stop()
 
 # --- 3. LOAD DATA DIAL L-KLYAN (The Tenant) ---
-CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit?usp=sharing"
+CLIENT_URL = f"https://docs.google.com/spreadsheets/d/{st.session_state['sheet_id']}/edit?gid=0#gid=0"
 
 def load_data():
     raw = conn.read(spreadsheet=CLIENT_URL, ttl=0)
@@ -122,6 +122,7 @@ with t3:
             col2.link_button("📲 Rappeler", url)
     else:
         st.success("Tout est clean.")
+
 
 
 
