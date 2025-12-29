@@ -7,8 +7,8 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V41 - BULLETPROOF ARCHITECTURE
-st.set_page_config(page_title="EMPIRE_PRO_V41", layout="wide", page_icon="📈")
+# SYSTEM STATUS: OMEGA V42 - THE SUPREME EMPIRE (FULL RESTORE)
+st.set_page_config(page_title="EMPIRE_PRO_V42", layout="wide", page_icon="📈")
 
 # ⚡ CSS - CLEAN & ADAPTIVE
 st.markdown("""
@@ -63,28 +63,26 @@ except:
 
 # --- 3. THE BULLETPROOF COLUMN PATCH ---
 required_cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"]
+today = datetime.now().date()
+
 if not df.empty:
-    # Logic bach n-Mapping l-columns wakha t-koun smiya mbeddla chwiya
     for col in required_cols:
         if col not in df.columns:
-            # Check if it exists with extra spaces or different case
             found = False
             for actual_col in df.columns:
                 if col.strip().lower() == actual_col.strip().lower():
                     df.rename(columns={actual_col: col}, inplace=True)
                     found = True
                     break
-            if not found:
-                df[col] = "" # Create empty if not found at all
+            if not found: df[col] = ""
 
-    # Cleaning & Types
     for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
         df[c] = df[c].astype(str).replace('nan', '')
     
     df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce')
+    df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce')
     
-    today = datetime.now().date()
     df['Jours Restants'] = df['Date Fin'].apply(lambda x: (x.date() - today).days if pd.notnull(x) else 0)
     df['Date_Display'] = df['Date Fin'].dt.strftime('%Y-%m-%d').fillna("NON DÉFINI")
     df.loc[(df['Jours Restants'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
@@ -119,36 +117,38 @@ with t2:
     with st.expander("➕ AJOUTER UN NOUVEAU CLIENT"):
         ca, cb, cc = st.columns(3)
         with ca:
-            n_nom = st.text_input("Nom")
-            n_phone = st.text_input("WhatsApp")
+            n_nom = st.text_input("Nom Complet")
+            n_phone = st.text_input("WhatsApp (ex: 2126...)")
+            n_email = st.text_input("Email Client")
         with cb:
-            n_email = st.text_input("Email")
             s_list = ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"]
             s_choice = st.selectbox("Service", s_list)
             final_s = st.text_input("Préciser") if s_choice == "Autre" else s_choice
+            n_prix = st.number_input("Prix (DH)", min_value=0)
         with cc:
-            n_prix = st.number_input("Prix", min_value=0)
-            n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
+            n_deb = st.date_input("Date de Début", today) # 💡 RESTORED FIELD
+            n_dur = st.number_input("Durée (en Mois)", min_value=1, value=1)
+            n_stat = st.selectbox("Status Initial", ["Actif", "En Attente", "Payé"])
         
-        if st.button("🚀 Enregistrer"):
+        if st.button("🚀 Enregistrer au Cloud"):
             if n_nom and n_phone:
-                n_fin = today + relativedelta(months=int(n_dur))
-                new_row = [n_nom, str(n_phone), n_email, final_s, n_prix, str(today), n_dur, str(n_fin), "Actif"]
+                n_fin = n_deb + relativedelta(months=int(n_dur))
+                # Ordre: Nom, Phone, Email, Service, Prix, Début, Durée, Fin, Status
+                new_row = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
                 c_sheet_obj.append_row(new_row)
-                st.success("✅ Synchro OK!")
+                st.success("✅ Client ajouté avec succès!")
                 st.rerun()
 
     st.markdown("---")
     if not df.empty:
-        cols = ["Nom", "Phone", "Email", "Service", "Prix", "Status", "Jours Restants", "Date_Display"]
-        # On n'affiche que ce qu'on a pour être sur
-        display_cols = [c for c in cols if c in df.columns]
-        edited = st.data_editor(df[display_cols], use_container_width=True, num_rows="dynamic", disabled=["Jours Restants", "Date_Display"])
+        cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Jours Restants"]
+        actual_cols = [c for c in cols if c in df.columns]
+        edited = st.data_editor(df[actual_cols], use_container_width=True, num_rows="dynamic", disabled=["Jours Restants", "Date Fin"])
         if st.button("💾 Sauvegarder modifications"):
-            final_df = edited.drop(columns=['Jours Restants', 'Date_Display'], errors='ignore')
+            final_df = edited.drop(columns=['Jours Restants'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Google Sheets Synced!")
+            st.success("✅ Base Synchronisée!")
             st.rerun()
 
 # TAB 3: RELANCES
@@ -159,10 +159,11 @@ with t3:
         for _, r in urgent.iterrows():
             col_l, col_r = st.columns([3, 1])
             icon = "🔴" if r['Jours Restants'] <= 0 else "🟠"
-            col_l.warning(f"{icon} **{r['Nom']}** | {r['Service']} | **{r['Jours Restants']} j**")
-            wa = f"https://wa.me/{r['Phone']}?text=Bonjour {r['Nom']}, renouvellement {r['Service']}? Expire le {r['Date_Display']}"
+            col_l.warning(f"{icon} **{r['Nom']}** | {r['Service']} | **{r['Jours Restants']} j** (Expire: {r['Date_Display']})")
+            msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire bientôt ({r['Date_Display']}). On renouvelle?"
+            wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}"
             col_r.link_button("📲 Rappeler", wa)
-    else: st.success("Tout est à jour.")
+    else: st.success("Aucune relance.")
 
 # TAB 4: REÇUS
 with t4:
@@ -173,4 +174,6 @@ with t4:
         st.code(reçu)
         st.link_button("📲 WhatsApp Direct", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
 
-st.sidebar.button("Déconnexion", on_click=lambda: st.session_state.clear())
+if st.sidebar.button("Déconnexion"):
+    st.session_state.clear()
+    st.rerun()
