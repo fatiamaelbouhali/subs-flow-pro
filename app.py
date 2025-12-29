@@ -7,15 +7,40 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# OMEGA STATUS: V25 - LUXURY SAAS PLATFORM
-st.set_page_config(page_title="SUBS_FLOW_PRO_V25", layout="wide", page_icon="💎")
+# SYSTEM STATUS: OMEGA V26 - CRYSTAL CLEAR UI
+st.set_page_config(page_title="SUBS_FLOW_PRO_V26", layout="wide", page_icon="💎")
 
-# CUSTOM CSS BACH L-INTERFACE TJI MHAYBA
+# ⚡ CSS DYAL S-SAYTARA (FORCE COLORS)
 st.markdown("""
     <style>
-    .stMetric { background-color: #1f2937; padding: 15px; border-radius: 10px; border: 1px solid #374151; color: white; }
-    div[data-testid="stExpander"] { border: 1px solid #374151; border-radius: 10px; }
-    .stTabs [data-baseweb="tab-list"] { gap: 24px; }
+    /* Background Metrics */
+    div[data-testid="stMetric"] {
+        background-color: #111827 !important;
+        border: 2px solid #374151 !important;
+        padding: 20px !important;
+        border-radius: 15px !important;
+    }
+    /* Alwan dial l-ar9am */
+    div[data-testid="stMetricValue"] > div {
+        color: #00ff9d !important; /* Neon Green bach i-banu l-flooos */
+        font-size: 35px !important;
+        font-weight: bold !important;
+    }
+    /* Alwan dial l-ktaba sghira */
+    div[data-testid="stMetricLabel"] > div > p {
+        color: #ffffff !important;
+        font-size: 16px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+    }
+    /* Title Style */
+    .main-title {
+        color: #ffffff;
+        font-size: 50px;
+        font-weight: 900;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px #000000;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -32,7 +57,7 @@ client = get_gspread_client()
 
 # --- 1. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.title("🏦 Plateforme SaaS Digital")
+    st.title("🏦 Plateforme SaaS Management")
     u_in = st.text_input("Identifiant Business:")
     p_in = st.text_input("Mot de passe:", type="password")
     if st.button("Se Connecter & Dominer"):
@@ -48,7 +73,7 @@ if "auth" not in st.session_state:
                     st.session_state["biz_name"] = str(match.iloc[0]['Business_Name']).strip()
                     st.session_state["sheet_name"] = str(match.iloc[0]['Sheet_Name']).strip()
                     st.rerun()
-                else: st.error("🚫 Accès suspendu. Contactez Fatima.")
+                else: st.error("🚫 Accès suspendu.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error: {e}")
     st.stop()
@@ -72,25 +97,29 @@ if not df.empty:
     df.loc[(df['Jours Restants'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
 # --- 3. THE INTERFACE ---
-st.title(f"🚀 {st.session_state['biz_name']}")
-st.sidebar.markdown(f"**Admin:** {st.session_state['user']}")
+# FORCE BIZ NAME DISPLAY
+st.markdown(f'<p class="main-title">🚀 {st.session_state["biz_name"]}</p>', unsafe_allow_html=True)
+st.sidebar.markdown(f"👤 Admin: **{st.session_state['user']}**")
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS", "👥 GESTION", "🔔 ALERTES", "📄 REÇUS"])
 
 with t1:
-    st.subheader("Analyse des Performances")
+    st.subheader("Performance Live")
     if not df.empty:
         c1, c2, c3 = st.columns(3)
         c1.metric("Revenue Global", f"{df['Prix'].sum()} DH")
         c2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
         c3.metric("Relances Urgent", len(df[(df['Jours Restants'] <= 3) & (df['Status'] != 'Payé')]))
         
+        st.markdown("---")
         g1, g2 = st.columns(2)
         with g1:
             fig1 = px.bar(df, x='Service', y='Prix', color='Status', title="Revenue/Service", template="plotly_dark")
+            fig1.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"))
             st.plotly_chart(fig1, use_container_width=True)
         with g2:
             fig2 = px.pie(df, names='Service', title="Market Share", hole=0.5, template="plotly_dark")
+            fig2.update_layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)', font=dict(color="white"))
             st.plotly_chart(fig2, use_container_width=True)
 
 with t2:
@@ -98,11 +127,10 @@ with t2:
         ca, cb, cc = st.columns(3)
         with ca:
             n_nom = st.text_input("Nom Complet")
-            n_phone = st.text_input("WhatsApp (ex: 2126...)")
+            n_phone = st.text_input("WhatsApp")
             n_email = st.text_input("Email Client")
         with cb:
-            s_list = ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"]
-            s_choice = st.selectbox("Service", s_list)
+            s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
             final_s = st.text_input("Préciser s-service") if s_choice == "Autre" else s_choice
             n_prix = st.number_input("Prix (DH)", min_value=0, step=5)
         with cc:
@@ -127,7 +155,7 @@ with t2:
             final_df = edited.drop(columns=['Jours Restants', 'Mois'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Cloud Sync!")
+            st.success("✅ Cloud Updated!")
             st.rerun()
 
 with t3:
@@ -144,7 +172,7 @@ with t3:
     else: st.success("Tout est propre!")
 
 with t4:
-    st.subheader("Générateur de Reçu 📄")
+    st.subheader("Générateur de Reçu Officiel 📄")
     if not df.empty:
         sel = st.selectbox("Choisir klyan:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
@@ -161,7 +189,6 @@ with t4:
             f"🤝 *Merci pour votre confiance !*"
         )
         st.code(reçu)
-        # 💡 NEW: Bouton WhatsApp Direct pour le Reçu
         wa_reçu = f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}"
         st.link_button(f"📲 Envoyer Reçu à {c['Nom']}", wa_reçu)
 
