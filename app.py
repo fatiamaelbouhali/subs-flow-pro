@@ -7,79 +7,78 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V50 - LUXURY SAAS DESIGN
-st.set_page_config(page_title="EMPIRE_PRO_V50", layout="wide", page_icon="💎")
+# SYSTEM STATUS: OMEGA V51 - VIBRANT EMPIRE (LIFE & ENERGY UI)
+st.set_page_config(page_title="EMPIRE_PRO_V51", layout="wide", page_icon="⚡")
 
-# ⚡ THE LUXURY UI ENGINE (PERFECT VISIBILITY & STYLE)
+# ⚡ CSS DIAL "L-7AYAT" - COLORS THAT MAKE YOU WANT TO WORK
 st.markdown("""
     <style>
-    /* 1. Background Pro */
-    .stApp { background-color: #0e1117 !important; }
+    /* Background n9i o mri7 */
+    .stApp { background-color: #f8fafc; }
 
-    /* 2. Business Banner Luxury */
+    /* Business Banner Vibrant Gradient */
     .biz-banner {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        padding: 30px;
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+        padding: 35px;
         border-radius: 20px;
-        color: #ffffff !important;
+        color: white !important;
         text-align: center;
-        font-size: 42px;
+        font-size: 45px;
         font-weight: 900;
         margin-bottom: 30px;
-        border-bottom: 5px solid #00d2ff;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+        border: none;
+        text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
     }
 
-    /* 3. Metrics Cards (The "Wow" Factor) */
+    /* Metrics Cards - Glassmorphism Style */
     div[data-testid="stMetric"] {
-        background: #1a1c24 !important;
-        border: 1px solid #3b82f6 !important;
-        border-radius: 15px !important;
-        padding: 20px !important;
-        transition: 0.3s;
+        background: white !important;
+        border: none !important;
+        border-radius: 20px !important;
+        padding: 25px !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+        transition: 0.4s ease;
     }
-    div[data-testid="stMetric"]:hover { transform: translateY(-5px); border-color: #00ffcc !important; }
+    div[data-testid="stMetric"]:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0,0,0,0.1) !important; }
     
-    /* Neon Green for Money */
-    div[data-testid="stMetricValue"] > div {
-        color: #00ff9d !important;
-        font-size: 38px !important;
-        font-weight: 900 !important;
-    }
+    /* Vibrant Colors for Numbers */
+    div[data-testid="stMetricValue"] > div { color: #4f46e5 !important; font-size: 40px !important; font-weight: 800 !important; }
     
-    /* Pure White for Metric Labels */
-    div[data-testid="stMetricLabel"] p {
-        color: #ffffff !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-    }
+    /* Professional Labels */
+    div[data-testid="stMetricLabel"] p { color: #64748b !important; font-size: 16px !important; font-weight: 700 !important; text-transform: uppercase; }
 
-    /* 4. Input Fields (NO MORE WHITE ON WHITE) */
-    div[data-testid="stWidgetLabel"] p { color: #ffffff !important; font-weight: 600 !important; font-size: 1rem !important; }
-    
-    /* Force inputs to be white with black text for readability */
-    input, select, textarea {
-        color: #000000 !important;
-        background-color: #ffffff !important;
-        border-radius: 8px !important;
-    }
-
-    /* 5. Tabs Styling */
-    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    /* Tabs Styling - Modern Look */
+    .stTabs [data-baseweb="tab-list"] { gap: 12px; background-color: transparent; }
     .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        background-color: #1f2937 !important;
-        color: #ffffff !important;
-        border-radius: 10px 10px 0 0 !important;
+        height: 55px;
+        background-color: #ffffff !important;
+        color: #475569 !important;
+        border-radius: 12px !important;
+        padding: 10px 30px !important;
+        font-weight: 600 !important;
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.02) !important;
+    }
+    .stTabs [aria-selected="true"] { 
+        background: #6366f1 !important; 
+        color: white !important; 
+        border: none !important;
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3) !important;
+    }
+
+    /* Buttons Pro */
+    .stButton button {
+        background: linear-gradient(90deg, #6366f1 0%, #4f46e5 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        border: none !important;
         padding: 10px 25px !important;
         font-weight: bold !important;
     }
-    .stTabs [aria-selected="true"] { background-color: #3b82f6 !important; border-bottom: 4px solid #00d2ff !important; }
-
-    /* Tables & Frames */
-    .stTable, .stDataFrame { border-radius: 10px !important; overflow: hidden !important; }
+    
+    /* Input Visibility Fix */
+    label p { color: #1e293b !important; font-weight: 700 !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -94,12 +93,12 @@ client = get_gspread_client()
 
 # --- 1. LOGIN ---
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">👑 EMPIRE MANAGEMENT PORTAL</div>', unsafe_allow_html=True)
-    col1, col2 = st.columns([1, 1])
-    with col1:
+    st.markdown('<div class="biz-banner">🚀 ENTERPRISE PORTAL</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns([1, 1])
+    with c1:
         u_in = st.text_input("Identifiant Business:")
-        p_in = st.text_input("Access Password:", type="password")
-        if st.button("Se Connecter & Dominer"):
+        p_in = st.text_input("Mot de passe:", type="password")
+        if st.button("S'authentifier"):
             try:
                 m_sheet = client.open("Master_Admin").sheet1
                 m_df = pd.DataFrame(m_sheet.get_all_records())
@@ -112,8 +111,8 @@ if "auth" not in st.session_state:
                         st.session_state["biz_name"] = str(match.iloc[0]['Business_Name']).strip()
                         st.session_state["sheet_name"] = str(match.iloc[0]['Sheet_Name']).strip()
                         st.rerun()
-                else: st.error("❌ Identifiants Ghalat.")
-            except Exception as e: st.error(f"Error Master: {e}")
+                else: st.error("❌ Identifiants Incorrects.")
+            except Exception as e: st.error(f"Error: {e}")
     st.stop()
 
 # --- 2. LOAD DATA ---
@@ -135,80 +134,77 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 3. UI INTERFACE ---
-st.markdown(f'<div class="biz-banner">🚀 {st.session_state["biz_name"]}</div>', unsafe_allow_html=True)
+# --- 3. UI ---
+st.markdown(f'<div class="biz-banner">⚡ {st.session_state["biz_name"]}</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 GESTION", "🔔 RAPPELS", "📄 REÇUS"])
 
 with t1:
     if not df.empty:
         c1, c2, c3 = st.columns(3)
-        c1.metric("REVENUE TOTAL", f"{df['Prix'].sum()} DH")
-        c2.metric("CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']))
-        c3.metric("ALERTES", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+        c1.metric("💰 REVENUE TOTAL", f"{df['Prix'].sum()} DH")
+        c2.metric("✅ CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']))
+        c3.metric("🚨 ALERTES URGENTES", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
         
-        st.markdown("### 📋 Résumé des Revenus par Service")
+        st.markdown("### 📈 Chiffre d'Affaires par Service")
         summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        summary.columns = ['Service', 'Clients', 'Total (DH)']
+        summary.columns = ['Service', 'Nb Clients', 'Revenue (DH)']
         st.dataframe(summary, use_container_width=True)
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="plotly_dark", barmode='group'), use_container_width=True)
+        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', barmode='group', template="simple_white"), use_container_width=True)
 
 with t2:
-    with st.expander("➕ AJOUTER UN NOUVEAU CLIENT"):
+    with st.expander("➕ NOUVEAU CLIENT"):
         ca, cb, cc = st.columns(3)
         n_nom = ca.text_input("Nom Complet")
-        n_phone = ca.text_input("WhatsApp (ex: 212...)")
+        n_phone = ca.text_input("WhatsApp")
         n_email = ca.text_input("Email")
         s_choice = cb.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
         final_s = cb.text_input("Préciser Service") if s_choice == "Autre" else s_choice
-        n_prix = cc.number_input("Prix (DH)", min_value=0)
+        n_prix = cc.number_input("Prix", min_value=0)
         n_deb = cc.date_input("Date de Début", today)
         n_dur = cc.number_input("Durée (Mois)", min_value=1, value=1)
         if st.button("🚀 Valider l'Abonnement"):
             if n_nom and n_phone:
                 n_fin = n_deb + relativedelta(months=int(n_dur))
                 c_sheet_obj.append_row([n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"])
-                st.success("✅ Synchronisation réussie !")
+                st.success("✅ Synchro réussie !")
                 st.rerun()
 
     st.markdown("---")
     if not df.empty:
         cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]
         edited = st.data_editor(df[cols], use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
-        if st.button("💾 Sauvegarder les modifications"):
+        if st.button("💾 Sauvegarder modifications"):
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Google Sheets Synchro!")
+            st.success("✅ Cloud Sync OK!")
             st.rerun()
 
 with t3:
-    st.subheader("Relances WhatsApp Intelligent 📲")
+    st.subheader("Relances WhatsApp 📲")
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
     if not urgent.empty:
         for _, r in urgent.iterrows():
             col_l, col_r = st.columns([3, 1])
             icon = "🔴" if r['Days'] <= 0 else "🟠"
-            col_l.warning(f"{icon} **{r['Nom']}** | {r['Service']} | **{r['Days']} jours**")
-            msg = f"⚠️ *RAPPEL {st.session_state['biz_name']}*\n\nBonjour {r['Nom']},\nVotre abonnement {r['Service']} expire le {r['Date_Display']}.\nSouhaitez-vous le renouveler ?"
+            col_l.info(f"{icon} **{r['Nom']}** | {r['Service']} | **{r['Days']} jours**")
+            msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire le {r['Date_Display']}. On renouvelle?"
             wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}"
-            col_r.link_button("📲 Rappeler", wa)
-    else: st.success("Aucun rappel urgent.")
+            col_r.link_button("📲 Envoyer", wa)
+    else: st.success("Tout est propre.")
 
 with t4:
-    st.subheader("Générateur de Reçu Pro 📄")
     if not df.empty:
-        sel = st.selectbox("Sélectionner le client:", df['Nom'].unique())
+        sel = st.selectbox("Choisir client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = (f"✅ *REÇU DE PAIEMENT - {st.session_state['biz_name']}*\n"
-                f"━━━━━━━━━━━━━━━━━━\n"
+        reçu = (f"✅ *REÇU - {st.session_state['biz_name']}*\n"
                 f"👤 Client: *{c['Nom']}*\n"
                 f"📺 Service: *{c['Service']}*\n"
                 f"💰 Prix: *{c['Prix']} DH*\n"
-                f"⌛ Expiration: *{c['Date_Display']}*\n"
-                f"━━━━━━━━━━━━━━━━━━\n"
-                f"🤝 *Merci pour votre confiance !*")
+                f"⌛ Expire: *{c['Date_Display']}*\n"
+                f"*Merci de votre confiance !*")
         st.code(reçu)
         st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
 
-st.sidebar.button("Se déconnecter", on_click=lambda: st.session_state.clear())
+st.sidebar.button("Déconnexion", on_click=lambda: st.session_state.clear())
