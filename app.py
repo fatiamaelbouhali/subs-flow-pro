@@ -7,64 +7,34 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V30 - FINAL VISIBILITY OVERLOAD
-st.set_page_config(page_title="SUBS_FLOW_PRO_V30", layout="wide", page_icon="🏦")
+# SYSTEM STATUS: OMEGA V31 - THE CRYSTAL VISION (ULTRA VISIBILITY)
+st.set_page_config(page_title="SUBS_FLOW_PRO_V31", layout="wide", page_icon="💎")
 
-# ⚡ CSS DIAL S-SAYTARA - CLEAN & HIGH CONTRAST
+# ⚡ CSS DIAL S-SAYTARA - CLEAN & HIGH CONTRAST (FIXED)
 st.markdown("""
     <style>
-    /* Reset ga3 l-ktaba l-asasiya */
-    .stApp { color: #ffffff !important; }
-    h1, h2, h3, h4, h5, h6, p, span, label { color: #ffffff !important; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    /* Headers & Metrics Visibility */
+    .stMetricValue { color: #00ff9d !important; font-weight: 900 !important; }
+    .stMetricLabel { color: #ffffff !important; font-size: 18px !important; font-weight: bold !important; opacity: 1 !important; }
     
-    /* Metrics Box - Professional Neon Style */
-    div[data-testid="stMetric"] {
-        background-color: #1a1c24 !important;
-        border: 2px solid #00d2ff !important;
-        padding: 20px !important;
-        border-radius: 15px !important;
-        box-shadow: 0 4px 15px rgba(0, 210, 255, 0.2);
-    }
-    
-    /* Neon Green dial l-Ar9am */
-    div[data-testid="stMetricValue"] > div {
-        color: #00ff9d !important;
-        font-size: 42px !important;
-        font-weight: 900 !important;
-    }
-    
-    /* White Labels (Revenu, etc) - NADIYIN */
-    div[data-testid="stMetricLabel"] p {
-        color: #ffffff !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-        letter-spacing: 1px !important;
-    }
+    /* Expander Styling (Ajouter un client) */
+    .streamlit-expanderHeader { background-color: #1f2937 !important; color: #ffffff !important; font-weight: bold !important; border-radius: 8px; }
+    .stExpander { border: 1px solid #3b82f6 !important; border-radius: 10px; }
 
-    /* Tabs Visibility */
-    .stTabs [data-baseweb="tab-list"] { gap: 15px; }
-    .stTabs [data-baseweb="tab"] {
-        background-color: #262730 !important;
-        color: #ffffff !important;
-        border-radius: 5px !important;
-        padding: 10px 20px !important;
-        font-weight: bold !important;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #00d2ff !important;
-        color: #000000 !important;
-    }
+    /* Input Labels Visibility (Nom, Phone, etc) */
+    label[data-testid="stWidgetLabel"] p { color: #ffffff !important; font-size: 16px !important; font-weight: bold !important; }
 
-    /* Business Title Banner */
+    /* Banner Styling */
     .biz-banner {
         background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
-        padding: 20px;
-        border-radius: 10px;
+        padding: 25px;
+        border-radius: 12px;
         color: #000000 !important;
-        font-size: 40px;
+        font-size: 42px;
         font-weight: 900;
         text-align: center;
         margin-bottom: 30px;
+        box-shadow: 0 4px 20px rgba(0, 210, 255, 0.4);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -81,10 +51,10 @@ client = get_gspread_client()
 
 # --- 1. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.title("🛡️ SaaS Management Login")
+    st.title("🛡️ SaaS Login")
     u_in = st.text_input("Identifiant Business:")
     p_in = st.text_input("Mot de passe:", type="password")
-    if st.button("Unleash the Power"):
+    if st.button("Se Connecter"):
         try:
             m_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(m_sheet.get_all_records())
@@ -94,12 +64,11 @@ if "auth" not in st.session_state:
                 if match.iloc[0]['Status'] == 'Active':
                     st.session_state["auth"] = True
                     st.session_state["user"] = u_in
-                    # Fallback Business Name
                     b_name = str(match.iloc[0]['Business_Name']).strip()
-                    st.session_state["biz_name"] = b_name if b_name != 'nan' and b_name != "" else f"{u_in.upper()} DIGITAL"
+                    st.session_state["biz_name"] = b_name if b_name != 'nan' and b_name != "" else f"{u_in.upper()} PRO"
                     st.session_state["sheet_name"] = str(match.iloc[0]['Sheet_Name']).strip()
                     st.rerun()
-                else: st.error("🚫 Access Suspended.")
+                else: st.error("🚫 Bloqué.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error: {e}")
     st.stop()
@@ -109,7 +78,7 @@ try:
     c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
     df = pd.DataFrame(c_sheet_obj.get_all_records())
 except:
-    st.error("Base de données introuvable.")
+    st.error("Base introuvable.")
     st.stop()
 
 today = datetime.now().date()
@@ -122,42 +91,35 @@ if not df.empty:
     df.loc[(df['Jours Restants'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
 # --- 3. THE INTERFACE ---
-# FORCE BRANDING WITH BANNER
 st.markdown(f'<div class="biz-banner">🚀 {st.session_state["biz_name"]}</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS", "👥 GESTION", "🔔 ALERTES", "📄 REÇUS"])
 
 with t1:
-    st.subheader("Business Metrics Overview")
+    st.subheader("Performance Overview")
     if not df.empty:
         c1, c2, c3 = st.columns(3)
         c1.metric("Revenue Global", f"{df['Prix'].sum()} DH")
         c2.metric("Clients Actifs", len(df[df['Status'] == 'Actif']))
-        c3.metric("Relances (≤3j)", len(df[(df['Jours Restants'] <= 3) & (df['Status'] != 'Payé')]))
+        c3.metric("Relances Urgent", len(df[(df['Jours Restants'] <= 3) & (df['Status'] != 'Payé')]))
         
-        st.markdown("---")
         g1, g2 = st.columns(2)
         with g1:
-            fig1 = px.bar(df, x='Service', y='Prix', color='Status', template="plotly_dark", title="Revenue / Service")
-            fig1.update_layout(font=dict(color="white"))
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="plotly_dark"), use_container_width=True)
         with g2:
-            fig2 = px.pie(df, names='Service', hole=0.6, template="plotly_dark", title="Répartition Services")
-            fig2.update_layout(font=dict(color="white"))
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(px.pie(df, names='Service', hole=0.5, template="plotly_dark"), use_container_width=True)
 
 with t2:
-    st.subheader("Database Management")
-    with st.expander("➕ Ajouter un nouveau client"):
+    with st.expander("➕ AJOUTER UN NOUVEAU CLIENT"):
         ca, cb, cc = st.columns(3)
         n_nom = ca.text_input("Nom Complet")
-        n_phone = ca.text_input("WhatsApp")
+        n_phone = ca.text_input("WhatsApp (ex: 212...)")
         n_email = ca.text_input("Email")
         s_choice = cb.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-        final_s = cb.text_input("Détails Service") if s_choice == "Autre" else s_choice
+        final_s = cb.text_input("Préciser") if s_choice == "Autre" else s_choice
         n_prix = cc.number_input("Prix", min_value=0)
-        n_dur = cc.number_input("Mois", min_value=1, value=1)
-        if st.button("🚀 Enregistrer au Cloud"):
+        n_dur = cc.number_input("Durée (Mois)", min_value=1, value=1)
+        if st.button("💾 Enregistrer"):
             if n_nom and n_phone:
                 n_fin = today + relativedelta(months=int(n_dur))
                 c_sheet_obj.append_row([n_nom, str(n_phone), n_email, final_s, n_prix, str(today), n_dur, str(n_fin), "Actif"])
@@ -165,11 +127,12 @@ with t2:
                 st.rerun()
 
     st.markdown("---")
+    st.subheader("Tableau de Gestion")
     if not df.empty:
         cols = ["Nom", "Phone", "Email", "Service", "Prix", "Status", "Jours Restants", "Date Fin"]
         actual_cols = [c for c in cols if c in df.columns]
         edited = st.data_editor(df[actual_cols], use_container_width=True, num_rows="dynamic", disabled=["Jours Restants", "Date Fin"])
-        if st.button("💾 Sauvegarder modifications"):
+        if st.button("💾 Sauvegarder Changes"):
             final_df = edited.drop(columns=['Jours Restants'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
@@ -187,26 +150,16 @@ with t3:
             msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire bientôt ({r['Date Fin']}). On renouvelle?"
             wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}"
             col_r.link_button("📲 Rappeler", wa)
-    else: st.success("Aucune relance urgente.")
+    else: st.success("Tout est propre.")
 
 with t4:
     st.subheader("Générateur de Reçu Officiel 📄")
     if not df.empty:
         sel = st.selectbox("Choisir klyan:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = (
-            f"✅ *REÇU D'ABONNEMENT - {st.session_state['biz_name']}*\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"👤 *Client:* {c['Nom']}\n"
-            f"📩 *Email:* {c['Email']}\n"
-            f"📺 *Service:* {c['Service']}\n"
-            f"💰 *Prix:* {c['Prix']} DH\n"
-            f"📅 *Fin:* {c['Date Fin']}\n"
-            f"━━━━━━━━━━━━━━━━━━\n"
-            f"🤝 *Merci pour votre confiance !*"
-        )
+        reçu = f"*REÇU - {st.session_state['biz_name']}*\n\n👤 Client: {c['Nom']}\n📩 Email: {c['Email']}\n📺 Service: {c['Service']}\n💰 Prix: {c['Prix']} DH\n⌛ Expire: {c['Date Fin']}\n\n*Merci pour votre confiance !*"
         st.code(reçu)
         wa_reçu = f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}"
-        st.link_button(f"📲 Envoyer Reçu via WhatsApp", wa_reçu)
+        st.link_button(f"📲 Envoyer via WhatsApp", wa_reçu)
 
 st.sidebar.button("Déconnexion", on_click=lambda: st.session_state.clear())
