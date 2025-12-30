@@ -8,8 +8,8 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V77 - SOFT EMERALD EDITION & EXCEL FIX
-st.set_page_config(page_title="EMPIRE_PRO_V77", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V78 - EXCEL AUTO-WIDTH & SUPREME SaaS
+st.set_page_config(page_title="EMPIRE_PRO_V78", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
@@ -34,8 +34,6 @@ with st.sidebar:
     st.header("⚙️ Config")
     sel_lang = st.selectbox("🌍 Language", ["FR", "AR"])
     L = LANGS[sel_lang]
-    
-    # 💡 ADDED SOFT EMERALD
     sel_theme = st.selectbox("🎨 Theme Mode", ["Vibrant Empire", "Soft Emerald", "Luxury Dark", "Midnight Blue"])
     
     if sel_theme == "Vibrant Empire":
@@ -51,14 +49,10 @@ with st.sidebar:
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {bg} !important; }}
-    
-    /* Metrics Box */
     div[data-testid="stMetric"] {{ background: {card_bg} !important; border: 2px solid #f59e0b; border-radius: 15px; padding: 15px; }}
     div[data-testid="stMetricValue"] > div {{ color: {txt_m} !important; font-weight: 900 !important; }}
-
-    /* Banner */
     .biz-banner {{ background: linear-gradient(135deg, #f59e0b 0%, {border_c} 100%); padding: 20px; border-radius: 15px; color: white !important; text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }}
-
+    
     /* 360° BORDERS - BORDO LUXURY */
     .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input {{
         border: 3px solid #800000 !important; border-radius: 12px !important; background-color: #ffffff !important;
@@ -66,18 +60,15 @@ st.markdown(f"""
     }}
     label p {{ color: #800000 !important; font-weight: 900 !important; }}
     
-    /* Summary Table */
     .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
     .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
     .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
-
-    /* Tabs */
     .stTabs [data-baseweb="tab"] {{ font-weight: 900 !important; font-size: 18px !important; color: #1e3a8a !important; }}
     .stTabs [aria-selected="true"] {{ background-color: {border_c} !important; color: white !important; border-radius: 10px 10px 0 0; }}
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. GOOGLE CONNECTION ---
+# --- 3. CONNECTION ---
 MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
 def get_gspread_client():
     creds_dict = st.secrets["connections"]["gsheets"]
@@ -101,7 +92,7 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 5. LOAD CLIENT DATA ---
+# --- 5. DATA ---
 try:
     c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
     df = pd.DataFrame(c_sheet_obj.get_all_records())
@@ -113,11 +104,12 @@ if not df.empty:
         if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
     df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
+    df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.date
     df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 6. SIDEBAR FORM (ALWAYS OPEN) ---
+# --- 6. SIDEBAR FORM ---
 with st.sidebar:
     st.markdown("---")
     st.header(L["add"])
@@ -128,8 +120,7 @@ with st.sidebar:
     final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
     n_prix = st.number_input("Prix", min_value=0)
     n_deb = st.date_input("Date Début", today)
-    n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
-    
+    n_dur = st.number_input("Mois", min_value=1, value=1)
     if st.button(L["save"]):
         if n_nom and n_phone:
             n_fin = n_deb + relativedelta(months=int(n_dur))
@@ -138,11 +129,10 @@ with st.sidebar:
             df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
             c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
             st.success("✅ Synced!"); st.rerun()
-
     st.markdown("---")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# --- 7. MAIN INTERFACE ---
+# --- 7. MAIN UI ---
 st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 t1, t2, t3, t4 = st.tabs([L["tab1"], L["tab2"], L["tab3"], L["tab4"]])
 
@@ -151,7 +141,6 @@ with t1:
     c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
     c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
     c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
-    
     st.markdown(f"### {L['sum_title']}")
     if not df.empty:
         sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
@@ -161,8 +150,8 @@ with t1:
 
 with t2:
     if not df.empty:
-        cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]
-        edited = st.data_editor(df[cols], use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
+        cols_edit = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]
+        edited = st.data_editor(df[cols_edit], use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
         if st.button("💾 Sauvegarder Changes"):
             final_df = edited.drop(columns=['Days', 'Date_Display'], errors='ignore')
             c_sheet_obj.clear(); c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
@@ -187,23 +176,24 @@ with t4:
                 f"👤 Client: *{c['Nom']}*\n"
                 f"📺 Service: *{c['Service']}*\n"
                 f"💰 Prix: *{c['Prix']} DH*\n"
-                f"⌛ Expire: *{c['Date_Display']}*\n"
+                f"⌛ Expire le: *{c['Date_Display']}*\n"
                 f"━━━━━━━━━━━━━━━━━━")
         st.code(reçu)
         st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
 
-# --- FINAL EXCEL FIX ---
-def to_excel_final(df):
+# --- FINAL AUTO-WIDTH EXCEL FIX ---
+def to_excel_dynamic(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='EmpireBackup')
-        writer.close() # Ensure it's closed
+        workbook  = writer.book
+        worksheet = writer.sheets['EmpireBackup']
+        # 💡 OMEGA MAGIC: Auto-adjust column width
+        for i, col in enumerate(df.columns):
+            column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+            worksheet.set_column(i, i, column_len)
+        writer.close()
     return out.getvalue()
 
 st.sidebar.markdown("---")
-st.sidebar.download_button(
-    label=L["export"], 
-    data=to_excel_final(df), 
-    file_name=f"{st.session_state['user']}_backup.xlsx",
-    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" # FIXED MIME TYPE
-)
+st.sidebar.download_button(L["export"], to_excel_dynamic(df), f"{st.session_state['user']}_pro.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
