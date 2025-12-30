@@ -7,82 +7,47 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V58 - VIBRANT SOUL EDITION (MAXIMUM ENERGY)
-st.set_page_config(page_title="EMPIRE_PRO_V58", layout="wide", page_icon="⚡")
+# SYSTEM STATUS: OMEGA V59 - THE ULTIMATE SAAS BOSS EDITION
+st.set_page_config(page_title="EMPIRE_PRO_V59", layout="wide", page_icon="💎")
 
-# ⚡ THE SUPREME VIBRANT CSS - GIVING SOUL TO EVERY PIXEL
+# ⚡ THE SUPREME BOSS CSS (COMPACT & VIBRANT)
 st.markdown("""
     <style>
-    /* 1. Background Soft Pink Luxury */
     .stApp { background-color: #fff8f9 !important; }
     
-    /* 2. Business Banner Pro (Shield Icon) */
+    /* Compact Business Banner */
     .biz-banner {
         background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
-        padding: 30px; border-radius: 20px; color: white !important;
-        text-align: center; font-size: 45px; font-weight: 900;
-        margin-bottom: 30px; border: 3px solid #ffffff;
-        box-shadow: 0 15px 40px rgba(236, 72, 153, 0.3);
+        padding: 15px; border-radius: 15px; color: white !important;
+        text-align: center; font-size: 28px; font-weight: 900;
+        margin-bottom: 20px; border: 2px solid #ffffff;
+        box-shadow: 0 8px 25px rgba(236, 72, 153, 0.2);
     }
 
-    /* 3. Metrics Cards (The Analytics Pro) */
+    /* Sidebar Styling */
+    section[data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 1px solid #e2e8f0; }
+    .stSidebar [data-testid="stExpander"] { background-color: #f8fafc !important; border: 1px solid #ec4899 !important; border-radius: 10px; }
+
+    /* Metrics Luxury */
     div[data-testid="stMetric"] {
         background: white !important;
         border: 2px solid #f59e0b !important;
-        border-radius: 20px !important;
-        padding: 25px !important;
-        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1) !important;
-    }
-    div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 42px !important; font-weight: 900; }
-    div[data-testid="stMetricLabel"] p { color: #f59e0b !important; font-size: 17px !important; font-weight: bold !important; text-transform: uppercase; }
-
-    /* 4. Gestion Tab - Adding Soul to Inputs */
-    .stExpander {
-        background-color: white !important;
-        border: 2px solid #ec4899 !important;
         border-radius: 15px !important;
-        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.1) !important;
+        padding: 15px !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05) !important;
     }
-    label p { color: #475569 !important; font-weight: 800 !important; font-size: 1.1rem !important; }
-    input, select, .stSelectbox div { 
-        border-radius: 12px !important; 
-        border: 1px solid #e2e8f0 !important; 
-        font-weight: 600 !important; 
-    }
+    div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 32px !important; font-weight: 900; }
+    div[data-testid="stMetricLabel"] p { color: #f59e0b !important; font-size: 14px !important; font-weight: bold; text-transform: uppercase; }
 
-    /* 5. Alert System - Pro Gradient for Clean State */
-    .stAlert {
-        border-radius: 15px !important;
-        border: none !important;
-        background: linear-gradient(90deg, #f0fdf4 0%, #dcfce7 100%) !important;
-        border-left: 8px solid #22c55e !important;
-    }
-
-    /* 6. Reçus Tab - Card Style */
-    .stCode {
-        background-color: #1e293b !important;
-        color: #00ffcc !important;
-        border-radius: 15px !important;
-        padding: 20px !important;
-        border: 2px solid #ec4899 !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
-    }
-
-    /* 7. Tabs Pro */
-    .stTabs [data-baseweb="tab"] { font-weight: bold; font-size: 18px; color: #64748b !important; }
-    .stTabs [aria-selected="true"] { 
-        background-color: #f59e0b !important; 
-        color: white !important; 
-        border-radius: 10px 10px 0 0 !important; 
-    }
+    /* Data Editor & Tables */
+    .stDataFrame { border-radius: 10px !important; }
+    label p { color: #1e293b !important; font-weight: 800; }
     
-    /* 8. Styled Table (Summary) */
-    .styled-table {
-        width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 18px;
-        border-radius: 15px; overflow: hidden;
-    }
-    .styled-table thead tr { background: #f59e0b; color: white; }
-    .styled-table td { padding: 15px; background: white; color: #1e293b; border-bottom: 1px solid #f1f5f9; }
+    /* Custom Table Style (Analytics Summary) */
+    .summary-table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+    .summary-table thead { background: #f59e0b; color: white; }
+    .summary-table th, .summary-table td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+    .summary-table td { background: white; font-weight: bold; color: #db2777; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -95,12 +60,12 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 1. LOGIN ---
+# --- 1. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">🛡️ EMPIRE DIGITAL PORTAL</div>', unsafe_allow_html=True)
-    u_in = st.text_input("Identifiant Business:")
-    p_in = st.text_input("Mot de passe:", type="password")
-    if st.button("Unleash"):
+    st.markdown('<div class="biz-banner">🛡️ EMPIRE SaaS GATEWAY</div>', unsafe_allow_html=True)
+    u_in = st.text_input("Username:")
+    p_in = st.text_input("Password:", type="password")
+    if st.button("Unlock Power"):
         try:
             m_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(m_sheet.get_all_records())
@@ -110,7 +75,7 @@ if "auth" not in st.session_state:
                 if match.iloc[0]['Status'] == 'Active':
                     st.session_state.update({"auth": True, "user": u_in, "biz_name": str(match.iloc[0]['Business_Name']), "sheet_name": str(match.iloc[0]['Sheet_Name'])})
                     st.rerun()
-        except Exception as e: st.error(f"Error: {e}")
+        except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
 
 # --- 2. LOAD DATA ---
@@ -132,42 +97,29 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 3. THE UI ---
-st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
-
-t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 GESTION", "🔔 RAPPELS", "📄 REÇUS"])
-
-with t1:
-    if not df.empty:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("💰 REVENUE TOTAL", f"{df['Prix'].sum()} DH")
-        c2.metric("✅ CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']))
-        c3.metric("🚨 ALERTES URGENTES", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+# --- 3. SIDEBAR (LOGOUT + ADD CLIENT FORM) ---
+with st.sidebar:
+    st.markdown(f"👤 **{st.session_state['user']}**")
+    if st.button("Déconnexion"):
+        st.session_state.clear()
+        st.rerun()
+    st.markdown("---")
+    st.subheader("➕ Ajouter un Client")
+    with st.expander("Ouvrir le Formulaire", expanded=False):
+        n_nom = st.text_input("Nom Complet")
+        n_phone = st.text_input("WhatsApp")
+        n_email = st.text_input("Email")
+        s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
+        final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
+        n_prix = st.number_input("Prix (DH)", min_value=0)
+        n_deb = st.date_input("Date de Début", today)
+        n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
         
-        st.markdown("### 📋 Résumé Exécutif")
-        summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        summary.columns = ['Service', 'Clients', 'CA Total (DH)']
-        html_table = f"""<table class="styled-table"><thead><tr>{"".join([f"<th>{col}</th>" for col in summary.columns])}</tr></thead>
-        <tbody>{"".join([f"<tr>{''.join([f'<td>{val}</td>' for val in row])}</tr>" for row in summary.values])}</tbody></table>"""
-        st.markdown(html_table, unsafe_allow_html=True)
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
-
-with t2:
-    st.markdown("### 👥 Gestion des Abonnements")
-    with st.expander("➕ AJOUTER UN NOUVEAU CLIENT"):
-        ca, cb, cc = st.columns(3)
-        n_nom = ca.text_input("Nom")
-        n_phone = ca.text_input("WhatsApp")
-        n_email = ca.text_input("Email")
-        s_choice = cb.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-        final_s = cb.text_input("Nom service") if s_choice == "Autre" else s_choice
-        n_prix = cc.number_input("Prix (DH)", min_value=0)
-        n_deb = cc.date_input("Date de Début", today)
-        n_dur = cc.number_input("Durée (Mois)", min_value=1, value=1)
         if st.button("🚀 Enregistrer au Cloud"):
             if n_nom and n_phone:
                 n_fin = n_deb + relativedelta(months=int(n_dur))
                 new_row = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
+                # Manual sync to avoid data editor conflict
                 df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else df
                 df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_row))])], ignore_index=True)
                 c_sheet_obj.clear()
@@ -175,42 +127,71 @@ with t2:
                 st.success("✅ Synchro OK!")
                 st.rerun()
 
-    st.markdown("---")
+# --- 4. MAIN INTERFACE ---
+st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+
+t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 BASE DE DONNÉES", "🔔 RAPPELS WHATSAPP", "📄 GÉNÉRATEUR REÇUS"])
+
+# TAB 1: ANALYTICS
+with t1:
+    c1, c2, c3 = st.columns(3)
+    c1.metric("💰 REVENUE GLOBAL", f"{df['Prix'].sum() if not df.empty else 0} DH")
+    c2.metric("✅ CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']) if not df.empty else 0)
+    c3.metric("🚨 ALERTES (3j)", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]) if not df.empty else 0)
+
+    st.markdown("### 📋 Résumé Business par Service")
     if not df.empty:
-        cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]
-        edited = st.data_editor(df[cols], use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
-        if st.button("💾 Sauvegarder Changes"):
+        summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
+        summary.columns = ['Service', 'Clients', 'CA Total (DH)']
+        # Custom HTML Table for style
+        st.write(summary.to_html(classes='summary-table', index=False, border=0), unsafe_allow_html=True)
+        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
+
+# TAB 2: GESTION (NUMBER FORMATTING FIXED)
+with t2:
+    st.subheader("🛠️ Édition Rapide")
+    if not df.empty:
+        # Format Prix and Days in the editor to be Bold/Pro
+        edited = st.data_editor(
+            df[["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]],
+            column_config={
+                "Prix": st.column_config.NumberColumn("Prix (DH)", format="%d DH", width="medium"),
+                "Days": st.column_config.NumberColumn("Jours", format="%d j", width="small"),
+                "Status": st.column_config.SelectboxColumn("Status", options=["Actif", "Payé", "Expiré", "Annulé"])
+            },
+            use_container_width=True,
+            num_rows="dynamic",
+            disabled=["Days", "Date Fin"]
+        )
+        if st.button("💾 Sauvegarder les modifications"):
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
             st.success("✅ Database Updated!")
             st.rerun()
 
+# TAB 3: RELANCES
 with t3:
-    st.markdown("### 🔔 Alertes de Relance")
-    urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
+    st.subheader("🔔 Centre de Relance WhatsApp")
+    urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')] if not df.empty else pd.DataFrame()
     if not urgent.empty:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
-            cl.warning(f"👤 {r['Nom']} | 📺 {r['Service']} | ⏳ **{r['Days']} j**")
-            wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(f'Bonjour {r[0]}, renouvellement?')}"
-            cr.link_button("📲 Rappeler", wa)
-    else: st.success("🚀 Tout est parfait. Aucun retard aujourd'hui !")
+            cl.warning(f"👤 **{r['Nom']}** | ⏳ **{r['Days']} j** (Expire: {r['Date Fin']})")
+            msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire bientot. On renouvelle?"
+            cr.link_button("📲 Rappeler", f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}")
+    else: st.success("Aucun retard aujourd'hui.")
 
+# TAB 4: REÇUS
 with t4:
-    st.markdown("### 📄 Générateur de Reçu Pro")
     if not df.empty:
         sel = st.selectbox("Choisir client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
         reçu = (f"✅ *REÇU - {st.session_state['biz_name']}*\n"
-                f"━━━━━━━━━━━━━━━━━━\n"
                 f"👤 Client: *{c['Nom']}*\n"
                 f"📺 Service: *{c['Service']}*\n"
                 f"💰 Prix: *{c['Prix']} DH*\n"
                 f"⌛ Expire: *{c['Date_Display']}*\n"
-                f"━━━━━━━━━━━━━━━━━━\n"
-                f"🤝 *Merci pour votre confiance !*")
+                f"*Merci pour votre confiance !*")
         st.code(reçu)
         st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
-
-st.sidebar.button("Déconnexion", on_click=lambda: st.session_state.clear())
