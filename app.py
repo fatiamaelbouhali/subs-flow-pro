@@ -8,18 +8,20 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V83 - THE FINAL POLISH (PERFECT FORM DESIGN)
-st.set_page_config(page_title="EMPIRE_PRO_V83", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V84 - THE SUPREME JEWEL (ZERO ERRORS, PERFECT BORDERS)
+st.set_page_config(page_title="EMPIRE_PRO_V84", layout="wide", page_icon="🛡️")
 
-# --- 1. LANGUAGE DICTIONARY ---
+# --- 1. LANGUAGE DICTIONARY (FIXED KEYS) ---
 LANGS = {
     "FR": {
+        "ident": "Identifiant Business:", "pass": "Mot de passe:", "btn_log": "Se Connecter",
         "nav1": "📊 ANALYTICS", "nav2": "👥 GESTION", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
         "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
         "save": "🚀 Enregistrer au Cloud", "export": "📥 Télécharger Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
         "sum_title": "📋 Résumé Business par Service", "logout": "Déconnexion", "propre": "Tout est propre."
     },
     "AR": {
+        "ident": "اسم المستخدم:", "pass": "كلمة السر:", "btn_log": "تسجيل الدخول",
         "nav1": "📊 الإحصائيات", "nav2": "👥 إدارة الزبناء", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
         "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
         "save": "🚀 حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
@@ -27,7 +29,7 @@ LANGS = {
     }
 }
 
-# --- 2. SIDEBAR CONFIG ---
+# --- 2. SIDEBAR SETTINGS ---
 with st.sidebar:
     st.markdown("### ⚙️ Config")
     sel_lang = st.selectbox("🌍 Language", ["FR", "AR"])
@@ -36,61 +38,53 @@ with st.sidebar:
     st.markdown("### 🚀 Menu")
     menu = st.radio("Navigation", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
 
-# ⚡ THE SURGICAL CSS FIX FOR INPUT CONTOURS
+# ⚡ THE NUCLEAR CSS - 360° BORDERS & CENTERED FORM
 st.markdown(f"""
     <style>
-    /* 1. Background Rose Barad Luxury */
+    /* Background Rose Barad */
     .stApp {{ background-color: #fff5f7 !important; }}
     
-    /* 2. Business Banner */
-    .biz-banner {{ 
-        background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); 
-        padding: 25px; border-radius: 20px; color: white !important; 
-        text-align: center; font-size: 32px; font-weight: 900; 
-        margin-bottom: 25px; border: 4px solid #ffffff; 
-        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
-    }}
-
-    /* 3. THE MASTER INPUT FIX - FORCING 360 BORDERS */
-    /* Targetting the container of the input to avoid Streamlit cutting */
-    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"] {{
-        border: 3px solid #800000 !important; 
-        border-radius: 12px !important;
+    /* 1. THE ULTIMATE INPUT FIX - FULL BORDERS (BORDO & BLUE) */
+    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div {{
+        border: 3px solid #800000 !important; /* Bordo Border */
+        border-radius: 14px !important;
         background-color: #ffffff !important;
         padding: 4px !important;
-        box-shadow: none !important;
+        box-shadow: 4px 4px 10px rgba(236, 72, 153, 0.1) !important; /* Soft Rose Shadow */
     }}
     
-    /* Force internal input part to be clean */
-    input, select, textarea {{
+    /* Input Text Style (Royal Blue) */
+    input, select, textarea, div[role="button"] {{
         border: none !important;
         background-color: transparent !important;
-        color: #1e3a8a !important;
+        color: #1e3a8a !important; 
         font-weight: 800 !important;
         box-shadow: none !important;
     }}
 
-    /* Labels - Bordo Bold Centered */
-    label p {{ 
-        color: #800000 !important; 
-        font-weight: 900 !important; 
-        text-align: left !important; 
-        margin-left: 5px !important;
-        font-size: 1.1rem !important;
+    /* Labels - Bordo Bold */
+    label p {{ color: #800000 !important; font-weight: 900 !important; font-size: 1.1rem !important; }}
+
+    /* 2. Business Banner */
+    .biz-banner {{ 
+        background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); 
+        padding: 20px; border-radius: 20px; color: white !important; 
+        text-align: center; font-size: 32px; font-weight: 900; 
+        margin-bottom: 25px; border: 4px solid #ffffff; 
     }}
 
-    /* 4. Metrics Box */
+    /* 3. Metrics Box */
     div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }}
     div[data-testid="stMetricValue"] > div {{ color: #db2777 !important; font-weight: 900 !important; }}
 
-    /* 5. Buttons Pro */
+    /* 4. Buttons */
     .stButton button {{
         background: linear-gradient(90deg, #f59e0b 0%, #1e3a8a 100%) !important;
         color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
         font-weight: 900 !important; padding: 12px 40px !important;
     }}
 
-    /* Luxury Summary Table */
+    /* Luxury Table Summary */
     .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
     .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
     .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
@@ -105,21 +99,24 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 4. LOGIN ---
+# --- 4. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
     st.markdown(f'<div class="biz-banner">🛡️ EMPIRE ACCESS GATEWAY</div>', unsafe_allow_html=True)
-    col_l, col_c, col_r = st.columns([1, 2, 1])
-    with col_c:
+    _, col_log, _ = st.columns([1, 2, 1])
+    with col_log:
         u_in = st.text_input(L["ident"])
         p_in = st.text_input(L["pass"], type="password")
         if st.button(L["btn_log"]):
-            m_sheet = client.open("Master_Admin").sheet1
-            m_df = pd.DataFrame(m_sheet.get_all_records())
-            match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
-            if not match.empty:
-                user_row = match.iloc[0]
-                st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
-                st.rerun()
+            try:
+                m_sheet = client.open("Master_Admin").sheet1
+                m_df = pd.DataFrame(m_sheet.get_all_records())
+                match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
+                if not match.empty:
+                    user_row = match.iloc[0]
+                    st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
+                    st.rerun()
+                else: st.error("❌ Identifiants Incorrects.")
+            except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
 
 # --- 5. DATA ---
@@ -217,7 +214,7 @@ elif menu == L["nav3"]:
 
 # 📄 REÇUS
 elif menu == L["nav4"]:
-    st.header(L["tab4"])
+    st.header(L["nav4"])
     if not df.empty:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
