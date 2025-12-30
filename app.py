@@ -7,33 +7,33 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V69 - THE GOD-MODE BUGFIX (BORDO & BLUE)
-st.set_page_config(page_title="EMPIRE_PRO_V69", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V70 - THE DIAMOND FINISH (VISUAL PERFECTION)
+st.set_page_config(page_title="EMPIRE_PRO_V70", layout="wide", page_icon="🛡️")
 
-# ⚡ THE SUPREME ROYAL CSS - BORDO, BLUE, ROSE BARAD
+# ⚡ THE NUCLEAR CSS - FIXING THE CONTOURS ONCE AND FOR ALL
 st.markdown("""
     <style>
     /* 1. Background Rose Barad Luxury */
     .stApp { background-color: #fff5f7 !important; }
     
-    /* 2. Business Banner - Mustard to Pink Pro */
+    /* 2. Business Banner - Mustard to Pink */
     .biz-banner {
         background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
-        padding: 25px; border-radius: 20px; color: white !important;
-        text-align: center; font-size: 35px; font-weight: 900;
-        margin-bottom: 30px; border: 4px solid #ffffff;
+        padding: 20px; border-radius: 20px; color: white !important;
+        text-align: center; font-size: 32px; font-weight: 900;
+        margin-bottom: 25px; border: 3px solid #ffffff;
         box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
     }
 
-    /* 3. INPUT CASES - BORDO CONTOURS & ROYAL BLUE TEXT */
+    /* 3. INPUT CASES FIX - CLEAN FULL CONTOURS (NO SHADOW INTERFERENCE) */
     .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
-        border: 2px solid #800000 !important; /* Bordo Dark Border */
+        border: 2px solid #800000 !important; /* Bordo Full Border */
         border-radius: 12px !important;
         background-color: #ffffff !important;
         color: #1e3a8a !important; /* Royal Blue Text */
         font-weight: 800 !important;
         height: 48px !important;
-        box-shadow: 3px 3px 10px rgba(30, 58, 138, 0.1) !important;
+        box-shadow: none !important; /* Remove shadows that cut borders */
     }
     
     /* Input Labels - Bordo Bold */
@@ -46,10 +46,9 @@ st.markdown("""
     /* 4. Metrics Box - Royal Style */
     div[data-testid="stMetric"] {
         background: white !important;
-        border: 3px solid #1e3a8a !important; /* Royal Blue */
+        border: 2px solid #1e3a8a !important;
         border-radius: 18px !important;
         padding: 20px !important;
-        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.1) !important;
     }
     div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 35px !important; font-weight: 900; }
     div[data-testid="stMetricLabel"] p { color: #800000 !important; font-size: 16px !important; font-weight: 800; text-transform: uppercase; }
@@ -66,14 +65,14 @@ st.markdown("""
 
     /* 6. SIDEBAR & TABS */
     [data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 5px solid #800000; }
-    
     .stTabs [data-baseweb="tab"] { font-weight: 900 !important; font-size: 18px !important; color: #1e3a8a !important; }
     .stTabs [aria-selected="true"] { background-color: #ec4899 !important; color: white !important; border-radius: 10px 10px 0 0; }
     
+    /* Standard Buttons */
     .stButton button {
         background: linear-gradient(90deg, #1e3a8a 0%, #800000 100%) !important;
         color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
-        font-weight: 900 !important; padding: 10px 30px !important;
+        font-weight: 900 !important; padding: 12px 30px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -87,24 +86,23 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 1. LOGIN SYSTEM (FIXED BUG) ---
+# --- 1. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">🛡️ EMPIRE ACCESS PORTAL</div>', unsafe_allow_html=True)
+    st.markdown('<div class="biz-banner">🛡️ EMPIRE ACCESS GATEWAY</div>', unsafe_allow_html=True)
     u_in = st.text_input("Username:")
     p_in = st.text_input("Password:", type="password")
-    if st.button("Se Connecter"):
+    if st.button("Unlock"):
         try:
             m_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(m_sheet.get_all_records())
             match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & 
                          (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
             if not match.empty:
-                user_row = match.iloc[0] # Jbed l-ligne l-lowla
+                user_row = match.iloc[0]
                 if str(user_row['Status']).strip() == 'Active':
                     st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
                     st.rerun()
-                else: 
-                    st.error(f"🚫 Accès suspendu pour '{u_in}'. Contactez Fatima.")
+                else: st.error(f"🚫 Accès suspendu. Contactez Fatima.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
@@ -130,7 +128,7 @@ if not df.empty:
 
 # --- 3. SIDEBAR FORM (ALWAYS OPEN) ---
 with st.sidebar:
-    st.markdown(f"👤 Admin: **{st.session_state['user'].upper()}**")
+    st.markdown(f"👑 **{st.session_state['user'].upper()}**")
     if st.button("Log out"):
         st.session_state.clear()
         st.rerun()
@@ -157,7 +155,7 @@ with st.sidebar:
             st.rerun()
 
 # --- 4. MAIN BODY ---
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 BASE DE DONNÉES", "🔔 RAPPELS", "📄 REÇUS"])
 
@@ -182,7 +180,7 @@ with t2:
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Database Cloud Synchronisée!")
+            st.success("✅ Database Updated!")
             st.rerun()
 
 with t3:
