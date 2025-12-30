@@ -7,13 +7,13 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V67 - CLEAN LUXURY EMPIRE (NO BORDERS)
-st.set_page_config(page_title="EMPIRE_PRO_V67", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V68 - ROYAL LUXURY EDITION (BORDO & BLUE)
+st.set_page_config(page_title="EMPIRE_PRO_V68", layout="wide", page_icon="🛡️")
 
-# ⚡ THE CLEAN LUXURY CSS - NO CONTOURS, MAXIMUM READABILITY
+# ⚡ THE SUPREME ROYAL CSS - BORDO, BLUE, ROSE BARAD
 st.markdown("""
     <style>
-    /* 1. Background Rose Barad */
+    /* 1. Background Rose Barad Luxury */
     .stApp { background-color: #fff5f7 !important; }
     
     /* 2. Business Banner - Mustard to Pink Pro */
@@ -21,33 +21,40 @@ st.markdown("""
         background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
         padding: 25px; border-radius: 20px; color: white !important;
         text-align: center; font-size: 35px; font-weight: 900;
-        margin-bottom: 300x; border: 3px solid #ffffff;
+        margin-bottom: 30px; border: 4px solid #ffffff;
         box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
     }
 
-    /* 3. INPUT CASES - CLEAN (NO CONTOUR) */
+    /* 3. INPUT CASES - BORDO CONTOURS & ROYAL BLUE TEXT */
     .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
-        border: none !important; /* 💡 NO CONTOUR */
+        border: 2px solid #800000 !important; /* Bordo Dark Border */
         border-radius: 12px !important;
         background-color: #ffffff !important;
-        color: #1e3a8a !important; 
+        color: #1e3a8a !important; /* Royal Blue Text */
         font-weight: 800 !important;
         height: 48px !important;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
+        box-shadow: 3px 3px 10px rgba(30, 58, 138, 0.1) !important;
     }
     
-    /* Metrics Box - Mustard Gold Style */
+    /* Input Labels - Bordo Bold */
+    label[data-testid="stWidgetLabel"] p {
+        color: #800000 !important;
+        font-weight: 900 !important;
+        font-size: 1.1rem !important;
+    }
+
+    /* 4. Metrics Box - Royal Mustard & Pink */
     div[data-testid="stMetric"] {
         background: white !important;
-        border: 2px solid #f59e0b !important;
+        border: 3px solid #1e3a8a !important; /* Royal Blue */
         border-radius: 18px !important;
         padding: 20px !important;
-        box-shadow: 0 8px 20px rgba(245, 158, 11, 0.1) !important;
+        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.1) !important;
     }
     div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 35px !important; font-weight: 900; }
-    div[data-testid="stMetricLabel"] p { color: #b45309 !important; font-size: 16px !important; font-weight: 800; text-transform: uppercase; }
+    div[data-testid="stMetricLabel"] p { color: #800000 !important; font-size: 16px !important; font-weight: 800; text-transform: uppercase; }
 
-    /* 4. LUXURY SUMMARY TABLE */
+    /* 5. LUXURY SUMMARY TABLE */
     .luxury-table {
         width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden;
         margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
@@ -57,15 +64,14 @@ st.markdown("""
     .luxury-table td { background-color: #ffffff; color: #1e3a8a; font-weight: 800; border-bottom: 1px solid #f1f5f9; }
     .luxury-table tr:nth-child(even) td { background-color: #fff9eb; color: #db2777; }
 
-    /* 5. SIDEBAR & TABS */
-    [data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 4px solid #f59e0b; }
-    [data-testid="stSidebar"] label p { color: #800000 !important; font-weight: 900 !important; }
+    /* 6. SIDEBAR & TABS */
+    [data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 5px solid #800000; }
     
     .stTabs [data-baseweb="tab"] { font-weight: 900 !important; font-size: 18px !important; color: #1e3a8a !important; }
     .stTabs [aria-selected="true"] { background-color: #ec4899 !important; color: white !important; border-radius: 10px 10px 0 0; }
     
     .stButton button {
-        background: linear-gradient(90deg, #f59e0b 0%, #ec4899 100%) !important;
+        background: linear-gradient(90deg, #1e3a8a 0%, #800000 100%) !important;
         color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
         font-weight: 900 !important; padding: 10px 30px !important;
     }
@@ -83,7 +89,7 @@ client = get_gspread_client()
 
 # --- 1. LOGIN SYSTEM ---
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">🛡️ EMPIRE ACCESS LOGIN</div>', unsafe_allow_html=True)
+    st.markdown('<div class="biz-banner">🛡️ EMPIRE ACCESS PORTAL</div>', unsafe_allow_html=True)
     u_in = st.text_input("Username:")
     p_in = st.text_input("Password:", type="password")
     if st.button("Se Connecter"):
@@ -93,10 +99,11 @@ if "auth" not in st.session_state:
             match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & 
                          (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
             if not match.empty:
-                if match.iloc[0]['Status'] == 'Active':
-                    st.session_state.update({"auth": True, "user": u_in, "biz_name": str(match.iloc[0]['Business_Name']), "sheet_name": str(match.iloc[0]['Sheet_Name'])})
-                    st.rerun()
-                else: st.error(f"🚫 Accès suspendu. Contactez Fatima Elbouhali.")
+                if user_row := match.iloc[0]:
+                    if user_row['Status'] == 'Active':
+                        st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
+                        st.rerun()
+                    else: st.error(f"🚫 Accès suspendu. Contactez Fatima.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
@@ -123,7 +130,7 @@ if not df.empty:
 # --- 3. SIDEBAR FORM (ALWAYS OPEN) ---
 with st.sidebar:
     st.markdown(f"👤 Admin: **{st.session_state['user'].upper()}**")
-    if st.button("Déconnexion"):
+    if st.button("Log out"):
         st.session_state.clear()
         st.rerun()
     st.markdown("---")
@@ -132,7 +139,7 @@ with st.sidebar:
     n_phone = st.text_input("WhatsApp (ex: 212...)")
     n_email = st.text_input("Email")
     s_choice = st.selectbox("Service Principal", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-    final_s = st.text_input("Nom Service Spécifique") if s_choice == "Autre" else s_choice
+    final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
     n_prix = st.number_input("Prix (DH)", min_value=0)
     n_deb = st.date_input("Date de Début", today)
     n_dur = st.number_input("Nombre de Mois", min_value=1, value=1)
@@ -149,18 +156,18 @@ with st.sidebar:
             st.rerun()
 
 # --- 4. MAIN BODY ---
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 BASE DE DONNÉES", "🔔 RAPPELS", "📄 REÇUS"])
 
 with t1:
     if not df.empty:
         c1, c2, c3 = st.columns(3)
-        c1.metric("💰 REVENUE TOTAL", f"{df['Prix'].sum()} DH")
-        c2.metric("✅ CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']))
-        c3.metric("🚨 ALERTES (3j)", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+        c1.metric("REVENUE TOTAL", f"{df['Prix'].sum()} DH")
+        c2.metric("ACTIFS", len(df[df['Status'] == 'Actif']))
+        c3.metric("ALERTES (3j)", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
         
-        st.markdown("### 📋 Résumé des Performances")
+        st.markdown("### 📋 Résumé Exécutif par Service")
         summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
         summary.columns = ['Service', 'Clients', 'CA Total (DH)']
         st.write(summary.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
