@@ -8,8 +8,8 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V81 - THE SUPREME ARCHITECT (STABLE SaaS)
-st.set_page_config(page_title="EMPIRE_PRO_V81", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V82 - CENTRICO LUXURY (MUSTARD, BLUE, PINK)
+st.set_page_config(page_title="EMPIRE_PRO_V82", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
@@ -29,60 +29,57 @@ LANGS = {
     }
 }
 
-# --- 2. THEMES & NAV ---
+# --- 2. SIDEBAR CONFIG ---
 with st.sidebar:
     st.markdown("### ⚙️ Config")
     sel_lang = st.selectbox("🌍 Language", ["FR", "AR"])
     L = LANGS[sel_lang]
-    sel_theme = st.selectbox("🎨 Theme", ["Vibrant Empire", "Soft Emerald", "Luxury Dark"])
-    
     st.markdown("---")
     st.markdown("### 🚀 Menu")
-    # NAVIGATION BLA D-DIWARAT (CSS HACK BELOW)
     menu = st.radio("Navigation", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
-    
-    if sel_theme == "Vibrant Empire":
-        bg, card_bg, border_c = "#fff5f7", "#ffffff", "#ec4899"
-    elif sel_theme == "Soft Emerald":
-        bg, card_bg, border_c = "#f0fdf4", "#ffffff", "#10b981"
-    else: # Dark
-        bg, card_bg, border_c = "#0e1117", "#1f2937", "#3b82f6"
 
-# ⚡ THE NUCLEAR CSS FIX - 360 BORDERS & CLEAN NAV
+# ⚡ THE SUPREME LUXURY CSS (ROSE, MUSTARD, BLUE)
 st.markdown(f"""
     <style>
-    .stApp {{ background-color: {bg} !important; }}
+    /* 1. Background Rose Barad */
+    .stApp {{ background-color: #fff5f7 !important; }}
     
-    /* 1. HIDE RADIO CIRCLES (MAKE IT CLICKABLE LINKS) */
-    div[role="radiogroup"] {{ gap: 10px; }}
-    div[role="radiogroup"] label {{ 
-        background: transparent; border-radius: 10px; padding: 5px 15px; 
-        transition: 0.3s; cursor: pointer; border: 1px solid transparent;
+    /* 2. Business Banner - Mustard to Blue */
+    .biz-banner {{ 
+        background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); 
+        padding: 25px; border-radius: 20px; color: white !important; 
+        text-align: center; font-size: 32px; font-weight: 900; 
+        margin-bottom: 25px; border: 4px solid #ffffff; 
+        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
     }}
-    div[role="radiogroup"] label:hover {{ background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; }}
-    div[data-testid="stRadioButtonContactLabel"] div[data-testid="stMarkdownContainer"] p {{
-        font-size: 18px !important; font-weight: 800 !important; color: #1e3a8a !important;
-    }}
-    div[role="radiogroup"] [data-testid="stWidgetLabel"] + div div div {{ display: none !important; }}
 
-    /* 2. THE FINAL 360° BORDER FIX FOR ALL INPUTS */
+    /* 3. CENTERED FORM LOGIC */
+    div[data-testid="column"] {{ display: flex; flex-direction: column; align-items: center; justify-content: center; }}
+
+    /* 4. INPUT CASES - 360° BORDO BORDERS & ROYAL BLUE TEXT */
     .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input {{
-        border: 3px solid #800000 !important; 
-        border-bottom: 3px solid #800000 !important; /* Force bottom */
-        border-radius: 12px !important;
-        background-color: #ffffff !important; 
-        color: #1e3a8a !important;
-        font-weight: 800 !important; 
-        height: 48px !important; 
-        padding: 5px 12px !important;
-        box-shadow: none !important;
+        border: 3px solid #800000 !important; border-radius: 12px !important;
+        background-color: #ffffff !important; color: #1e3a8a !important;
+        font-weight: 800 !important; height: 48px !important; width: 100% !important;
+        padding: 5px 12px !important; box-shadow: none !important;
     }}
-    label p {{ color: #800000 !important; font-weight: 900 !important; }}
+    label p {{ color: #800000 !important; font-weight: 900 !important; text-align: center !important; width: 100%; }}
 
-    /* 3. Banner & Metrics */
-    .biz-banner {{ background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white !important; text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; }}
-    div[data-testid="stMetric"] {{ background: {card_bg} !important; border: 2px solid #f59e0b; border-radius: 15px; padding: 15px; }}
+    /* 5. Metrics Box - Blue Border */
+    div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }}
+    div[data-testid="stMetricValue"] > div {{ color: #db2777 !important; font-weight: 900 !important; }}
+
+    /* 6. Tabs & Buttons */
+    div[role="radiogroup"] label {{ background: transparent; border-radius: 10px; padding: 5px 15px; transition: 0.3s; cursor: pointer; }}
+    div[role="radiogroup"] label:hover {{ background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; }}
     
+    .stButton button {{
+        background: linear-gradient(90deg, #f59e0b 0%, #1e3a8a 100%) !important;
+        color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
+        font-weight: 900 !important; padding: 12px 40px !important;
+    }}
+
+    /* Luxury Summary Table */
     .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
     .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
     .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
@@ -99,11 +96,12 @@ client = get_gspread_client()
 
 # --- 4. LOGIN ---
 if "auth" not in st.session_state:
-    st.markdown(f'<div class="biz-banner">🛡️ EMPIRE GATEWAY</div>', unsafe_allow_html=True)
-    u_in = st.text_input(L["ident"])
-    p_in = st.text_input(L["pass"], type="password")
-    if st.button(L["btn_log"]):
-        try:
+    st.markdown(f'<div class="biz-banner">🛡️ EMPIRE ACCESS GATEWAY</div>', unsafe_allow_html=True)
+    col_l, col_c, col_r = st.columns([1, 2, 1])
+    with col_c:
+        u_in = st.text_input(L["ident"])
+        p_in = st.text_input(L["pass"], type="password")
+        if st.button(L["btn_log"]):
             m_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(m_sheet.get_all_records())
             match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
@@ -111,8 +109,6 @@ if "auth" not in st.session_state:
                 user_row = match.iloc[0]
                 st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
                 st.rerun()
-            else: st.error("❌ Identifiants Incorrects.")
-        except Exception as e: st.error(f"Error Login: {e}")
     st.stop()
 
 # --- 5. DATA ---
@@ -131,7 +127,7 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 6. SIDEBAR DOWNLOAD & LOGOUT ---
+# EXCEL EXPORT LOGIC
 def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
@@ -143,14 +139,16 @@ def to_excel_pro(df):
         writer.close()
     return out.getvalue()
 
+# SIDEBAR FOOTER
 with st.sidebar:
     st.markdown("---")
     st.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# --- 7. MAIN BODY ---
-st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+# --- 6. BODY INTERFACE ---
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
+# 📊 ANALYTICS
 if menu == L["nav1"]:
     c1, c2, c3 = st.columns(3)
     c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
@@ -163,31 +161,39 @@ if menu == L["nav1"]:
         st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
 
+# 👥 GESTION (CENTERED FORM)
 elif menu == L["nav2"]:
-    st.header(L["add_title"])
-    ca, cb, cc = st.columns(3)
-    with ca:
-        n_nom = st.text_input("Nom / الإسم")
-        n_phone = st.text_input("WhatsApp")
-    with cb:
-        n_email = st.text_input("Email")
-        s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-        final_s = st.text_input("Service Name") if s_choice == "Autre" else s_choice
-    with cc:
-        n_prix = st.number_input("Prix", min_value=0)
-        n_deb = st.date_input("Start Date", today)
-        n_dur = st.number_input("Months", min_value=1, value=1)
-    if st.button(L["save"]):
-        if n_nom and n_phone:
-            n_fin = n_deb + relativedelta(months=int(n_dur))
-            new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
-            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
-            df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
-            c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-            st.success("✅ Synchronisé !"); st.rerun()
+    st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
+    # 💡 CENTERED FORM COLUMNS
+    _, col_form, _ = st.columns([1, 4, 1])
+    with col_form:
+        ca, cb, cc = st.columns(3)
+        with ca:
+            n_nom = st.text_input("Nom / الإسم")
+            n_phone = st.text_input("WhatsApp")
+        with cb:
+            n_email = st.text_input("Email")
+            s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
+            final_s = st.text_input("Service Name") if s_choice == "Autre" else s_choice
+        with cc:
+            n_prix = st.number_input("Prix", min_value=0)
+            n_deb = st.date_input("Start Date", today)
+            n_dur = st.number_input("Months", min_value=1, value=1)
+        
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button(L["save"], use_container_width=True):
+            if n_nom and n_phone:
+                n_fin = n_deb + relativedelta(months=int(n_dur))
+                new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
+                df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
+                df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
+                c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
+                st.success("✅ Synchronisé !"); st.rerun()
+
     st.markdown("---")
     st.data_editor(df, use_container_width=True, num_rows="dynamic")
 
+# 🔔 RAPPELS
 elif menu == L["nav3"]:
     st.header(L["nav3"])
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
@@ -195,17 +201,16 @@ elif menu == L["nav3"]:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
-            cr.link_button("📲 WhatsApp", wa)
-    else: st.success(L["propre"])
+            wa_url = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
+            cr.link_button("📲 WhatsApp", wa_url)
+    else: st.info(L["propre"])
 
+# 📄 REÇUS
 elif menu == L["nav4"]:
     st.header(L["nav4"])
     if not df.empty:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = (f"✅ *REÇU - {st.session_state['biz_name']}*\n━━━━━━━━━━━━━━━━━━\n"
-                f"👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n"
-                f"━━━━━━━━━━━━━━━━━━")
+        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n━━━━━━━━━━━━━━━━━━\n👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n━━━━━━━━━━━━━━━━━━"
         st.code(reçu)
-        st.link_button("📲 WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
+        st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
