@@ -7,63 +7,66 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V63 - DIAMOND COMMANDER EDITION
-st.set_page_config(page_title="EMPIRE_PRO_V63", layout="wide", page_icon="👤")
+# SYSTEM STATUS: OMEGA V64 - THE SUPREME OVERLORD FINAL (PERFECT UI)
+st.set_page_config(page_title="EMPIRE_PRO_V64", layout="wide", page_icon="👤")
 
-# ⚡ THE SUPREME LUXURY CSS (BORDO, ROSE, MUSTARD, BLUE)
+# ⚡ THE SUPREME CSS - LUXURY CONTOURS & VIBRANT SOUL
 st.markdown("""
     <style>
     .stApp { background-color: #fff8f9 !important; }
     
-    /* 1. INPUT CASES - BORDO & ROSE CONTOURS */
+    /* 1. INPUT CASES - BOLD CONTOURS MATCHING BANNER */
     .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
-        border: 2px solid #800000 !important; /* Bordo */
-        border-radius: 12px !important;
+        border: 4px solid #ec4899 !important; /* Pink Bordo Border */
+        border-radius: 15px !important;
         background-color: #ffffff !important;
-        color: #1e3a8a !important; /* Royal Blue Text */
-        font-weight: 700 !important;
-        box-shadow: 3px 3px 0px #ec4899 !important; /* Rose Barad Shadow */
+        color: #1e3a8a !important; 
+        font-weight: 900 !important;
+        height: 50px !important;
+        box-shadow: 5px 5px 15px rgba(236, 72, 153, 0.2) !important;
     }
 
-    /* 2. BUSINESS BANNER - LUXURY GRADIENT WITH HUMAN ICON */
+    /* 2. BUSINESS BANNER - LUXURY GRADIENT */
     .biz-banner {
-        background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); /* Mustard to Blue */
+        background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
         padding: 25px; border-radius: 20px; color: white !important;
         text-align: center; font-size: 35px; font-weight: 900;
-        margin-bottom: 30px; border: 3px solid #ffffff;
-        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
+        margin-bottom: 30px; border: 4px solid #ffffff;
+        box-shadow: 0 12px 35px rgba(236, 72, 153, 0.4);
     }
 
-    /* 3. METRICS - CLEAN & BOLD */
+    /* 3. METRICS LUXURY */
     div[data-testid="stMetric"] {
         background: white !important;
-        border: 2px solid #ec4899 !important; /* Rose Barad */
-        border-radius: 18px !important;
-        padding: 15px !important;
+        border: 3px solid #f59e0b !important;
+        border-radius: 20px !important;
+        padding: 20px !important;
     }
-    div[data-testid="stMetricValue"] > div { color: #800000 !important; font-size: 32px !important; font-weight: 900; }
+    div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 38px !important; font-weight: 900; }
     div[data-testid="stMetricLabel"] p { color: #1e3a8a !important; font-weight: 800; text-transform: uppercase; }
 
-    /* 4. BUTTONS - MUSTARD & BLUE GRADIENT */
-    .stButton button {
-        background: linear-gradient(90deg, #f59e0b 0%, #1e3a8a 100%) !important;
-        color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
-        font-weight: 900 !important; padding: 12px 35px !important;
-        text-transform: uppercase; letter-spacing: 1px;
+    /* 4. LARGE LUXURY SUMMARY TABLE (MATCHING BANNER) */
+    .luxury-table {
+        width: 100%; border-collapse: collapse; border-radius: 20px; overflow: hidden;
+        margin-top: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.1);
     }
+    .luxury-table thead tr { 
+        background: linear-gradient(90deg, #f59e0b, #ec4899) !important; 
+        color: white !important; font-weight: 900; 
+    }
+    .luxury-table th, .luxury-table td { padding: 22px; text-align: center; font-size: 20px; }
+    .luxury-table td { background-color: #ffffff; color: #1e3a8a; font-weight: 800; border-bottom: 1px solid #f1f5f9; }
+    .luxury-table tr:nth-child(even) td { background-color: #fff5f7; color: #db2777; }
 
-    /* 5. TABS & EDITOR */
-    .stTabs [data-baseweb="tab"] { font-weight: 900 !important; font-size: 18px !important; color: #800000 !important; }
-    .stTabs [aria-selected="true"] { background-color: #ec4899 !important; color: white !important; border-radius: 10px 10px 0 0; }
-    [data-testid="stDataFrame"] td { text-align: center !important; font-weight: 700 !important; color: #1e3a8a !important; }
-
-    /* 6. REÇU BOX STYLE */
-    .stCode {
-        background-color: #fff9eb !important; /* Soft Mustard */
-        border: 2px solid #1e3a8a !important;
-        border-radius: 15px !important;
-        color: #800000 !important;
-        font-weight: bold !important;
+    /* 5. SIDEBAR & TABS */
+    [data-testid="stSidebar"] { background-color: #ffffff !important; border-right: 4px solid #ec4899; }
+    .stTabs [data-baseweb="tab"] { font-weight: 900 !important; font-size: 19px !important; color: #1e3a8a !important; }
+    .stTabs [aria-selected="true"] { background-color: #ec4899 !important; color: white !important; border-radius: 12px 12px 0 0; }
+    
+    .stButton button {
+        background: linear-gradient(90deg, #f59e0b 0%, #ec4899 100%) !important;
+        color: white !important; border-radius: 15px !important; border: 2px solid #ffffff !important;
+        font-weight: 900 !important; padding: 15px 40px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -77,22 +80,26 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 1. LOGIN SYSTEM ---
+# --- 1. LOGIN SYSTEM (RESTORED SUSPENDED LOGIC) ---
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">👤 EMPIRE ACCESS GATEWAY</div>', unsafe_allow_html=True)
-    u_in = st.text_input("Username:")
-    p_in = st.text_input("Password:", type="password")
-    if st.button("Unlock"):
+    st.markdown('<div class="biz-banner">🛡️ EMPIRE DIGITAL GATEWAY</div>', unsafe_allow_html=True)
+    u_in = st.text_input("Username Business:")
+    p_in = st.text_input("Security Access Key:", type="password")
+    if st.button("Unleash The Empire"):
         try:
             m_sheet = client.open("Master_Admin").sheet1
             m_df = pd.DataFrame(m_sheet.get_all_records())
             match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & 
                          (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
             if not match.empty:
+                # 💡 RESTORED: Account Suspended Logic
                 if match.iloc[0]['Status'] == 'Active':
                     st.session_state.update({"auth": True, "user": u_in, "biz_name": str(match.iloc[0]['Business_Name']), "sheet_name": str(match.iloc[0]['Sheet_Name'])})
                     st.rerun()
-        except Exception as e: st.error(f"Error Master: {e}")
+                else: 
+                    st.error(f"🚫 **ACCÈS SUSPENDU :** Votre compte '{u_in}' est temporairement bloqué. Contactez Fatima Elbouhali.")
+            else: st.error("❌ Identifiants invalides.")
+        except Exception as e: st.error(f"Master Error: {e}")
     st.stop()
 
 # --- 2. LOAD DATA ---
@@ -100,7 +107,7 @@ try:
     c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
     df = pd.DataFrame(c_sheet_obj.get_all_records())
 except:
-    st.error("Base introuvable.")
+    st.error("Base de données introuvable.")
     st.stop()
 
 today = datetime.now().date()
@@ -114,7 +121,7 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 3. SIDEBAR (ALWAYS OPEN FORM) ---
+# --- 3. SIDEBAR (ALWAYS OPEN) ---
 with st.sidebar:
     st.markdown(f"👤 Admin: **{st.session_state['user'].upper()}**")
     if st.button("Déconnexion"):
@@ -126,7 +133,7 @@ with st.sidebar:
     n_phone = st.text_input("WhatsApp (ex: 212...)")
     n_email = st.text_input("Email")
     s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-    final_s = st.text_input("Nom Service Spécifique") if s_choice == "Autre" else s_choice
+    final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
     n_prix = st.number_input("Prix (DH)", min_value=0)
     n_deb = st.date_input("Date de Début", today)
     n_dur = st.number_input("Durée (Mois)", min_value=1, value=1)
@@ -135,7 +142,7 @@ with st.sidebar:
         if n_nom and n_phone:
             n_fin = n_deb + relativedelta(months=int(n_dur))
             new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
-            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
+            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else df
             df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
             c_sheet_obj.clear()
             c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
@@ -156,7 +163,8 @@ with t1:
         
         st.markdown("### 📋 Résumé Exécutif par Service")
         summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        summary.columns = ['Service', 'Clients', 'Total (DH)']
+        summary.columns = ['Service', 'Clients', 'CA Total (DH)']
+        # 💡 LARGE TABLE WITH BANNER COLORS
         st.write(summary.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
 
@@ -169,16 +177,15 @@ with t2:
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Base Cloud Synchronisée!")
+            st.success("✅ Database Synchronisée!")
             st.rerun()
 
 with t3:
-    st.subheader("🔔 Alertes de Relance")
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')] if not df.empty else pd.DataFrame()
     if not urgent.empty:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
-            cl.warning(f"👤 **{r['Nom']}** | ⏳ **{r['Days']} j** (Fin: {r['Date Fin']})")
+            cl.warning(f"👤 **{r['Nom']}** | 📺 {r['Service']} | ⏳ **{r['Days']} j**")
             msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire le {r['Date_Display']}. On renouvelle?"
             cr.link_button("📲 Rappeler", f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}")
     else: st.info("🛡️ Tout est propre. Aucun retard aujourd'hui !")
@@ -194,6 +201,6 @@ with t4:
                 f"💰 Prix: *{c['Prix']} DH*\n"
                 f"⌛ Expire le: *{c['Date_Display']}*\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
-                f"🤝 *Merci pour votre confiance !*")
+                f"🤝 *Merci لثقتكم !*")
         st.code(reçu)
         st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
