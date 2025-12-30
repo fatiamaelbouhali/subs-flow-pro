@@ -8,78 +8,84 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V75 - 4 THEMES & ALL FEATURES RESTORED
-st.set_page_config(page_title="EMPIRE_PRO_V75", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V76 - SUPREME GLOBAL EMPIRE (FIXED & VIBRANT)
+st.set_page_config(page_title="EMPIRE_V76_PRO", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
     "FR": {
         "ident": "Identifiant Business:", "pass": "Mot de passe:", "btn_log": "Se Connecter",
         "tab1": "📊 ANALYTICS", "tab2": "👥 GESTION", "tab3": "🔔 RAPPELS", "tab4": "📄 REÇUS",
-        "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add": "AJOUTER UN CLIENT",
-        "save": "Enregistrer au Cloud", "export": "📥 Exporter Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
-        "sum_title": "📋 Résumé par Service"
+        "rev": "REVENUE TOTAL", "act": "CLIENTS ACTIFS", "alrt": "ALERTES (3j)", "add": "➕ AJOUTER UN CLIENT",
+        "save": "🚀 Enregistrer au Cloud", "export": "📥 Exporter Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
+        "sum_title": "📋 Résumé par Service", "logout": "Déconnexion", "propre": "Tout est propre."
     },
     "AR": {
         "ident": "اسم المستخدم:", "pass": "كلمة السر:", "btn_log": "تسجيل الدخول",
         "tab1": "📊 الإحصائيات", "tab2": "👥 إدارة الزبناء", "tab3": "🔔 التنبيهات", "tab4": "📄 الوصولات",
-        "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add": "إضافة زبون جديد",
-        "save": "حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
-        "sum_title": "📋 ملخص الخدمات"
+        "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات (3 أيام)", "add": "➕ إضافة زبون جديد",
+        "save": "🚀 حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
+        "sum_title": "📋 ملخص الخدمات", "logout": "خروج", "propre": "كل شيء منظم."
     }
 }
 
-# --- 2. 4 PREMIUM THEMES ---
+# --- 2. THEMES & SETTINGS ---
 with st.sidebar:
     st.header("⚙️ Config")
     sel_lang = st.selectbox("🌍 Language", ["FR", "AR"])
     L = LANGS[sel_lang]
     
-    sel_theme = st.selectbox("🎨 Theme Mode", ["Luxury Dark", "Vibrant Rose", "Midnight Blue", "Soft Emerald"])
+    # User-Preferred Theme (Mustard/Pink is default)
+    sel_theme = st.selectbox("🎨 Theme", ["Vibrant Empire", "Luxury Dark", "Midnight Blue"])
     
-    if sel_theme == "Luxury Dark":
-        bg, txt, metric_bg, border_col = "#0e1117", "#ffffff", "rgba(30, 41, 59, 0.7)", "#00d2ff"
-    elif sel_theme == "Vibrant Rose":
-        bg, txt, metric_bg, border_col = "#fff5f7", "#1e3a8a", "#ffffff", "#ec4899"
-    elif sel_theme == "Midnight Blue":
-        bg, txt, metric_bg, border_col = "#010b1a", "#ffffff", "#101e33", "#3b82f6"
-    else: # Soft Emerald
-        bg, txt, metric_bg, border_col = "#f0fdf4", "#064e3b", "#ffffff", "#10b981"
+    if sel_theme == "Vibrant Empire":
+        bg, card_bg, border_c = "#fff5f7", "#ffffff", "#ec4899"
+    elif sel_theme == "Luxury Dark":
+        bg, card_bg, border_c = "#0e1117", "#1f2937", "#3b82f6"
+    else:
+        bg, card_bg, border_c = "#010b1a", "#101e33", "#00d2ff"
 
-# ⚡ DYNAMIC CSS
+# ⚡ CSS - VIBRANT & 360° BORDERS
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {bg} !important; }}
-    div[data-testid="stMetric"] {{ background: {metric_bg} !important; border: 2px solid {border_col}; border-radius: 15px; padding: 15px; }}
-    .stMetricValue > div {{ color: {border_col} !important; font-weight: 900 !important; }}
-    .biz-banner {{ background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white !important; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; }}
     
-    /* 360° BORDER FIX */
+    /* Metrics Box */
+    div[data-testid="stMetric"] {{ background: {card_bg} !important; border: 2px solid #f59e0b; border-radius: 15px; padding: 15px; }}
+    div[data-testid="stMetricValue"] > div {{ color: #db2777 !important; font-weight: 900 !important; }}
+
+    /* Banner Business */
+    .biz-banner {{ background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white !important; text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3); }}
+
+    /* 360° BORDER FIX FOR SIDEBAR INPUTS */
     .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input {{
         border: 3px solid #800000 !important; border-radius: 12px !important; background-color: #ffffff !important;
-        color: #1e3a8a !important; font-weight: 800 !important; height: 45px !important; padding: 5px 12px !important;
+        color: #1e3a8a !important; font-weight: 800 !important; height: 45px !important;
     }}
-    label[data-testid="stWidgetLabel"] p {{ color: #800000 !important; font-weight: 900 !important; }}
+    label p {{ color: #800000 !important; font-weight: 900 !important; }}
     
-    /* Summary Table Styling */
-    .summary-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 15px 0; }}
-    .summary-table thead {{ background: {border_col}; color: white; font-weight: bold; }}
-    .summary-table td {{ padding: 12px; border-bottom: 1px solid #ddd; background: white; color: black; text-align: center; font-weight: bold; }}
+    /* Styled Summary Table */
+    .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
+    .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
+    .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
+
+    /* Tabs Styling */
+    .stTabs [data-baseweb="tab"] {{ font-weight: 900 !important; font-size: 18px !important; color: #1e3a8a !important; }}
+    .stTabs [aria-selected="true"] {{ background-color: #ec4899 !important; color: white !important; border-radius: 10px 10px 0 0; }}
     </style>
     """, unsafe_allow_html=True)
 
-# MASTER ADMIN ID
+# --- 3. CONNECTION ---
 MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
-
 def get_gspread_client():
     creds_dict = st.secrets["connections"]["gsheets"]
     return gspread.authorize(Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']))
 
 client = get_gspread_client()
 
-# --- 3. LOGIN ---
+# --- 4. LOGIN ---
 if "auth" not in st.session_state:
-    st.markdown(f'<div class="biz-banner">🛡️ EMPIRE GATEWAY - {sel_lang}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="biz-banner">👤 EMPIRE LOGIN - {sel_lang}</div>', unsafe_allow_html=True)
     u_in = st.text_input(L["ident"])
     p_in = st.text_input(L["pass"], type="password")
     if st.button(L["btn_log"]):
@@ -93,11 +99,11 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 4. DATA LOADING ---
+# --- 5. DATA ---
 try:
     c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
     df = pd.DataFrame(c_sheet_obj.get_all_records())
-except: st.error("Error Sheet"); st.stop()
+except: st.error("Database error"); st.stop()
 
 today = datetime.now().date()
 if not df.empty:
@@ -109,37 +115,21 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 5. MAIN UI ---
-st.markdown(f'<div class="biz-banner">🚀 {st.session_state["biz_name"]}</div>', unsafe_allow_html=True)
-t1, t2, t3, t4 = st.tabs([L["tab1"], L["tab2"], L["tab3"], L["tab4"]])
-
-# TAB 1: ANALYTICS + SUMMARY
-with t1:
-    c1, c2, c3 = st.columns(3)
-    c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
-    c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
-    c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+# --- 6. SIDEBAR ADD FORM (ALWAYS OPEN) ---
+with st.sidebar:
+    st.markdown("---")
+    st.header(L["add"])
+    n_nom = st.text_input("Nom / الإسم")
+    n_phone = st.text_input("WhatsApp")
+    n_email = st.text_input("Email")
+    s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
+    final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
+    n_prix = st.number_input("Prix", min_value=0)
+    n_deb = st.date_input("Date Début", today)
+    n_dur = st.number_input("Mois", min_value=1, value=1)
     
-    st.markdown(f"### {L['sum_title']}")
-    if not df.empty:
-        summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        summary.columns = ['Service', 'Clients', 'Total (DH)']
-        st.write(summary.to_html(classes='summary-table', index=False, border=0), unsafe_allow_html=True)
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="plotly_dark"), use_container_width=True)
-
-# TAB 2: GESTION
-with t2:
-    with st.expander(L["add"]):
-        ca, cb, cc = st.columns(3)
-        n_nom = ca.text_input("Nom")
-        n_phone = ca.text_input("WhatsApp")
-        n_email = ca.text_input("Email")
-        s_choice = cb.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-        final_s = cb.text_input("Préciser") if s_choice == "Autre" else s_choice
-        n_prix = cc.number_input("Prix", min_value=0)
-        n_deb = cc.date_input("Début", today)
-        n_dur = cc.number_input("Mois", min_value=1, value=1)
-        if st.button(L["save"]):
+    if st.button(L["save"]):
+        if n_nom and n_phone:
             n_fin = n_deb + relativedelta(months=int(n_dur))
             new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
             df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
@@ -148,28 +138,58 @@ with t2:
             st.success("✅ Synced!"); st.rerun()
 
     st.markdown("---")
-    edited = st.data_editor(df, use_container_width=True, num_rows="dynamic")
-    if st.button("💾 Sauvegarder Changes"):
-        final_df = edited.drop(columns=['Days', 'Date_Display'], errors='ignore')
-        c_sheet_obj.clear(); c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-        st.success("✅ Cloud Updated!"); st.rerun()
+    if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# TAB 3: RELANCES
+# --- 7. MAIN UI ---
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+t1, t2, t3, t4 = st.tabs([L["tab1"], L["tab2"], L["tab3"], L["tab4"]])
+
+with t1:
+    c1, c2, c3 = st.columns(3)
+    c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
+    c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
+    c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+    
+    st.markdown(f"### {L['sum_title']}")
+    if not df.empty:
+        sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
+        sum_df.columns = ['Service', 'Clients', 'CA Total']
+        st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
+        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
+
+with t2:
+    if not df.empty:
+        cols = ["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status", "Days"]
+        edited = st.data_editor(df[cols], use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
+        if st.button("💾 Sauvegarder Changes"):
+            final_df = edited.drop(columns=['Days', 'Date_Display'], errors='ignore')
+            c_sheet_obj.clear(); c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
+            st.success("✅ Updated!"); st.rerun()
+
 with t3:
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
     if not urgent.empty:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            wa_url = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
-            cr.link_button("📲 Rappeler", wa_url)
+            wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
+            cr.link_button("📲 WhatsApp", wa)
+    else: st.info(L["propre"])
 
-# EXCEL EXPORT
-def to_excel_v2(df):
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='EmpireData')
-    return output.getvalue()
+with t4:
+    if not df.empty:
+        sel = st.selectbox("Client:", df['Nom'].unique())
+        c = df[df['Nom'] == sel].iloc[0]
+        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n🤝 *Merci !*"
+        st.code(reçu)
+        st.link_button("📲 WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
+
+# Excel Download
+def to_excel_pro(df):
+    out = io.BytesIO()
+    with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='EmpireBackup')
+    return out.getvalue()
 
 st.sidebar.markdown("---")
-st.sidebar.download_button(label=L["export"], data=to_excel_v2(df), file_name=f"{st.session_state['user']}_backup.xlsx", mime="application/vnd.ms-excel")
+st.sidebar.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}.xlsx")
