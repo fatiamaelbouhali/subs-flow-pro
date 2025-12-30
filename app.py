@@ -8,20 +8,18 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V82 - CENTRICO LUXURY (MUSTARD, BLUE, PINK)
-st.set_page_config(page_title="EMPIRE_PRO_V82", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V83 - THE FINAL POLISH (PERFECT FORM DESIGN)
+st.set_page_config(page_title="EMPIRE_PRO_V83", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
     "FR": {
-        "ident": "Identifiant Business:", "pass": "Mot de passe:", "btn_log": "Se Connecter",
         "nav1": "📊 ANALYTICS", "nav2": "👥 GESTION", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
         "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
         "save": "🚀 Enregistrer au Cloud", "export": "📥 Télécharger Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
         "sum_title": "📋 Résumé Business par Service", "logout": "Déconnexion", "propre": "Tout est propre."
     },
     "AR": {
-        "ident": "اسم المستخدم:", "pass": "كلمة السر:", "btn_log": "تسجيل الدخول",
         "nav1": "📊 الإحصائيات", "nav2": "👥 إدارة الزبناء", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
         "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
         "save": "🚀 حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
@@ -38,13 +36,13 @@ with st.sidebar:
     st.markdown("### 🚀 Menu")
     menu = st.radio("Navigation", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
 
-# ⚡ THE SUPREME LUXURY CSS (ROSE, MUSTARD, BLUE)
+# ⚡ THE SURGICAL CSS FIX FOR INPUT CONTOURS
 st.markdown(f"""
     <style>
-    /* 1. Background Rose Barad */
+    /* 1. Background Rose Barad Luxury */
     .stApp {{ background-color: #fff5f7 !important; }}
     
-    /* 2. Business Banner - Mustard to Blue */
+    /* 2. Business Banner */
     .biz-banner {{ 
         background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); 
         padding: 25px; border-radius: 20px; color: white !important; 
@@ -53,26 +51,39 @@ st.markdown(f"""
         box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
     }}
 
-    /* 3. CENTERED FORM LOGIC */
-    div[data-testid="column"] {{ display: flex; flex-direction: column; align-items: center; justify-content: center; }}
-
-    /* 4. INPUT CASES - 360° BORDO BORDERS & ROYAL BLUE TEXT */
-    .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input {{
-        border: 3px solid #800000 !important; border-radius: 12px !important;
-        background-color: #ffffff !important; color: #1e3a8a !important;
-        font-weight: 800 !important; height: 48px !important; width: 100% !important;
-        padding: 5px 12px !important; box-shadow: none !important;
+    /* 3. THE MASTER INPUT FIX - FORCING 360 BORDERS */
+    /* Targetting the container of the input to avoid Streamlit cutting */
+    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"] {{
+        border: 3px solid #800000 !important; 
+        border-radius: 12px !important;
+        background-color: #ffffff !important;
+        padding: 4px !important;
+        box-shadow: none !important;
     }}
-    label p {{ color: #800000 !important; font-weight: 900 !important; text-align: center !important; width: 100%; }}
+    
+    /* Force internal input part to be clean */
+    input, select, textarea {{
+        border: none !important;
+        background-color: transparent !important;
+        color: #1e3a8a !important;
+        font-weight: 800 !important;
+        box-shadow: none !important;
+    }}
 
-    /* 5. Metrics Box - Blue Border */
+    /* Labels - Bordo Bold Centered */
+    label p {{ 
+        color: #800000 !important; 
+        font-weight: 900 !important; 
+        text-align: left !important; 
+        margin-left: 5px !important;
+        font-size: 1.1rem !important;
+    }}
+
+    /* 4. Metrics Box */
     div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }}
     div[data-testid="stMetricValue"] > div {{ color: #db2777 !important; font-weight: 900 !important; }}
 
-    /* 6. Tabs & Buttons */
-    div[role="radiogroup"] label {{ background: transparent; border-radius: 10px; padding: 5px 15px; transition: 0.3s; cursor: pointer; }}
-    div[role="radiogroup"] label:hover {{ background: rgba(236, 72, 153, 0.1); border: 1px solid #ec4899; }}
-    
+    /* 5. Buttons Pro */
     .stButton button {{
         background: linear-gradient(90deg, #f59e0b 0%, #1e3a8a 100%) !important;
         color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
@@ -127,7 +138,7 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# EXCEL EXPORT LOGIC
+# EXCEL LOGIC
 def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
@@ -164,8 +175,7 @@ if menu == L["nav1"]:
 # 👥 GESTION (CENTERED FORM)
 elif menu == L["nav2"]:
     st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
-    # 💡 CENTERED FORM COLUMNS
-    _, col_form, _ = st.columns([1, 4, 1])
+    _, col_form, _ = st.columns([1, 6, 1])
     with col_form:
         ca, cb, cc = st.columns(3)
         with ca:
@@ -207,7 +217,7 @@ elif menu == L["nav3"]:
 
 # 📄 REÇUS
 elif menu == L["nav4"]:
-    st.header(L["nav4"])
+    st.header(L["tab4"])
     if not df.empty:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
