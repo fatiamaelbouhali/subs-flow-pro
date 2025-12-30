@@ -8,18 +8,20 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V80 - SUPREME ARCHITECT (ZERO RADIOS, FULL BORDERS)
-st.set_page_config(page_title="EMPIRE_PRO_V80", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V81 - THE SUPREME ARCHITECT (STABLE SaaS)
+st.set_page_config(page_title="EMPIRE_PRO_V81", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
     "FR": {
+        "ident": "Identifiant Business:", "pass": "Mot de passe:", "btn_log": "Se Connecter",
         "nav1": "📊 ANALYTICS", "nav2": "👥 GESTION", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
         "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
         "save": "🚀 Enregistrer au Cloud", "export": "📥 Télécharger Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
         "sum_title": "📋 Résumé Business par Service", "logout": "Déconnexion", "propre": "Tout est propre."
     },
     "AR": {
+        "ident": "اسم المستخدم:", "pass": "كلمة السر:", "btn_log": "تسجيل الدخول",
         "nav1": "📊 الإحصائيات", "nav2": "👥 إدارة الزبناء", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
         "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
         "save": "🚀 حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
@@ -35,18 +37,18 @@ with st.sidebar:
     sel_theme = st.selectbox("🎨 Theme", ["Vibrant Empire", "Soft Emerald", "Luxury Dark"])
     
     st.markdown("---")
-    # 💡 NAVIGATION BLA D-DIWARAT (CSS HACK)
     st.markdown("### 🚀 Menu")
+    # NAVIGATION BLA D-DIWARAT (CSS HACK BELOW)
     menu = st.radio("Navigation", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
     
     if sel_theme == "Vibrant Empire":
-        bg, card_bg, border_c, txt_m = "#fff5f7", "#ffffff", "#ec4899", "#db2777"
+        bg, card_bg, border_c = "#fff5f7", "#ffffff", "#ec4899"
     elif sel_theme == "Soft Emerald":
-        bg, card_bg, border_c, txt_m = "#f0fdf4", "#ffffff", "#10b981", "#047857"
+        bg, card_bg, border_c = "#f0fdf4", "#ffffff", "#10b981"
     else: # Dark
-        bg, card_bg, border_c, txt_m = "#0e1117", "#1f2937", "#3b82f6", "#00d2ff"
+        bg, card_bg, border_c = "#0e1117", "#1f2937", "#3b82f6"
 
-# ⚡ THE SUPREME CSS FIX
+# ⚡ THE NUCLEAR CSS FIX - 360 BORDERS & CLEAN NAV
 st.markdown(f"""
     <style>
     .stApp {{ background-color: {bg} !important; }}
@@ -61,14 +63,18 @@ st.markdown(f"""
     div[data-testid="stRadioButtonContactLabel"] div[data-testid="stMarkdownContainer"] p {{
         font-size: 18px !important; font-weight: 800 !important; color: #1e3a8a !important;
     }}
-    /* Hide the circle itself */
     div[role="radiogroup"] [data-testid="stWidgetLabel"] + div div div {{ display: none !important; }}
 
-    /* 2. 360° BORDER FIX FOR INPUTS */
+    /* 2. THE FINAL 360° BORDER FIX FOR ALL INPUTS */
     .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input {{
-        border: 3px solid #800000 !important; border-radius: 12px !important;
-        background-color: #ffffff !important; color: #1e3a8a !important;
-        font-weight: 800 !important; height: 48px !important; padding: 5px 12px !important;
+        border: 3px solid #800000 !important; 
+        border-bottom: 3px solid #800000 !important; /* Force bottom */
+        border-radius: 12px !important;
+        background-color: #ffffff !important; 
+        color: #1e3a8a !important;
+        font-weight: 800 !important; 
+        height: 48px !important; 
+        padding: 5px 12px !important;
         box-shadow: none !important;
     }}
     label p {{ color: #800000 !important; font-weight: 900 !important; }}
@@ -77,7 +83,6 @@ st.markdown(f"""
     .biz-banner {{ background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white !important; text-align: center; font-size: 32px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; }}
     div[data-testid="stMetric"] {{ background: {card_bg} !important; border: 2px solid #f59e0b; border-radius: 15px; padding: 15px; }}
     
-    /* Luxury Table */
     .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
     .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
     .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
@@ -98,13 +103,16 @@ if "auth" not in st.session_state:
     u_in = st.text_input(L["ident"])
     p_in = st.text_input(L["pass"], type="password")
     if st.button(L["btn_log"]):
-        m_sheet = client.open("Master_Admin").sheet1
-        m_df = pd.DataFrame(m_sheet.get_all_records())
-        match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
-        if not match.empty:
-            user_row = match.iloc[0]
-            st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
-            st.rerun()
+        try:
+            m_sheet = client.open("Master_Admin").sheet1
+            m_df = pd.DataFrame(m_sheet.get_all_records())
+            match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
+            if not match.empty:
+                user_row = match.iloc[0]
+                st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
+                st.rerun()
+            else: st.error("❌ Identifiants Incorrects.")
+        except Exception as e: st.error(f"Error Login: {e}")
     st.stop()
 
 # --- 5. DATA ---
@@ -123,7 +131,7 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# EXCEL LOGIC
+# --- 6. SIDEBAR DOWNLOAD & LOGOUT ---
 def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
@@ -135,13 +143,12 @@ def to_excel_pro(df):
         writer.close()
     return out.getvalue()
 
-# SIDEBAR FOOTER
 with st.sidebar:
     st.markdown("---")
     st.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# --- 6. BODY INTERFACE ---
+# --- 7. MAIN BODY ---
 st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 if menu == L["nav1"]:
@@ -179,7 +186,7 @@ elif menu == L["nav2"]:
             c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
             st.success("✅ Synchronisé !"); st.rerun()
     st.markdown("---")
-    st.data_editor(df, use_container_width=True, num_rows="dynamic", disabled=["Days", "Date Fin"])
+    st.data_editor(df, use_container_width=True, num_rows="dynamic")
 
 elif menu == L["nav3"]:
     st.header(L["nav3"])
@@ -190,7 +197,6 @@ elif menu == L["nav3"]:
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
             wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
             cr.link_button("📲 WhatsApp", wa)
-            st.markdown("---")
     else: st.success(L["propre"])
 
 elif menu == L["nav4"]:
@@ -198,6 +204,8 @@ elif menu == L["nav4"]:
     if not df.empty:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n🤝 *Merci !*"
+        reçu = (f"✅ *REÇU - {st.session_state['biz_name']}*\n━━━━━━━━━━━━━━━━━━\n"
+                f"👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n"
+                f"━━━━━━━━━━━━━━━━━━")
         st.code(reçu)
-        st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
+        st.link_button("📲 WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
