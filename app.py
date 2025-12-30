@@ -7,8 +7,8 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V68 - ROYAL LUXURY EDITION (BORDO & BLUE)
-st.set_page_config(page_title="EMPIRE_PRO_V68", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V69 - THE GOD-MODE BUGFIX (BORDO & BLUE)
+st.set_page_config(page_title="EMPIRE_PRO_V69", layout="wide", page_icon="🛡️")
 
 # ⚡ THE SUPREME ROYAL CSS - BORDO, BLUE, ROSE BARAD
 st.markdown("""
@@ -43,7 +43,7 @@ st.markdown("""
         font-size: 1.1rem !important;
     }
 
-    /* 4. Metrics Box - Royal Mustard & Pink */
+    /* 4. Metrics Box - Royal Style */
     div[data-testid="stMetric"] {
         background: white !important;
         border: 3px solid #1e3a8a !important; /* Royal Blue */
@@ -87,7 +87,7 @@ def get_gspread_client():
 
 client = get_gspread_client()
 
-# --- 1. LOGIN SYSTEM ---
+# --- 1. LOGIN SYSTEM (FIXED BUG) ---
 if "auth" not in st.session_state:
     st.markdown('<div class="biz-banner">🛡️ EMPIRE ACCESS PORTAL</div>', unsafe_allow_html=True)
     u_in = st.text_input("Username:")
@@ -99,11 +99,12 @@ if "auth" not in st.session_state:
             match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & 
                          (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
             if not match.empty:
-                if user_row := match.iloc[0]:
-                    if user_row['Status'] == 'Active':
-                        st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
-                        st.rerun()
-                    else: st.error(f"🚫 Accès suspendu. Contactez Fatima.")
+                user_row = match.iloc[0] # Jbed l-ligne l-lowla
+                if str(user_row['Status']).strip() == 'Active':
+                    st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
+                    st.rerun()
+                else: 
+                    st.error(f"🚫 Accès suspendu pour '{u_in}'. Contactez Fatima.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
@@ -156,7 +157,7 @@ with st.sidebar:
             st.rerun()
 
 # --- 4. MAIN BODY ---
-st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 BASE DE DONNÉES", "🔔 RAPPELS", "📄 REÇUS"])
 
@@ -167,7 +168,7 @@ with t1:
         c2.metric("ACTIFS", len(df[df['Status'] == 'Actif']))
         c3.metric("ALERTES (3j)", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
         
-        st.markdown("### 📋 Résumé Exécutif par Service")
+        st.markdown("### 📋 Résumé des Performances par Service")
         summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
         summary.columns = ['Service', 'Clients', 'CA Total (DH)']
         st.write(summary.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
@@ -181,7 +182,7 @@ with t2:
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Database Updated!")
+            st.success("✅ Database Cloud Synchronisée!")
             st.rerun()
 
 with t3:
