@@ -7,13 +7,13 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 
-# SYSTEM STATUS: OMEGA V66 - THE SUPREME VIBRANT GOLD (FINAL COLORS)
-st.set_page_config(page_title="EMPIRE_PRO_V66", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V67 - CLEAN LUXURY EMPIRE (NO BORDERS)
+st.set_page_config(page_title="EMPIRE_PRO_V67", layout="wide", page_icon="🛡️")
 
-# ⚡ THE LUXURY VIBRANT CSS - MATCHING IMAGE 2 PERFECTLY
+# ⚡ THE CLEAN LUXURY CSS - NO CONTOURS, MAXIMUM READABILITY
 st.markdown("""
     <style>
-    /* 1. Background Rose Barad Luxury */
+    /* 1. Background Rose Barad */
     .stApp { background-color: #fff5f7 !important; }
     
     /* 2. Business Banner - Mustard to Pink Pro */
@@ -21,19 +21,19 @@ st.markdown("""
         background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);
         padding: 25px; border-radius: 20px; color: white !important;
         text-align: center; font-size: 35px; font-weight: 900;
-        margin-bottom: 30px; border: 4px solid #ffffff;
+        margin-bottom: 300x; border: 3px solid #ffffff;
         box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
     }
 
-    /* 3. INPUT CASES - BOLD FULL CONTOURS (BORDO/PINK) */
+    /* 3. INPUT CASES - CLEAN (NO CONTOUR) */
     .stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"], .stDateInput input {
-        border: 2px solid #800000 !important; /* Bordo Dark Border */
+        border: none !important; /* 💡 NO CONTOUR */
         border-radius: 12px !important;
         background-color: #ffffff !important;
         color: #1e3a8a !important; 
         font-weight: 800 !important;
-        height: 45px !important;
-        box-shadow: 3px 3px 10px rgba(236, 72, 153, 0.1) !important;
+        height: 48px !important;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
     }
     
     /* Metrics Box - Mustard Gold Style */
@@ -47,7 +47,7 @@ st.markdown("""
     div[data-testid="stMetricValue"] > div { color: #db2777 !important; font-size: 35px !important; font-weight: 900; }
     div[data-testid="stMetricLabel"] p { color: #b45309 !important; font-size: 16px !important; font-weight: 800; text-transform: uppercase; }
 
-    /* 4. LUXURY SUMMARY TABLE (Mustard Header) */
+    /* 4. LUXURY SUMMARY TABLE */
     .luxury-table {
         width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden;
         margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05);
@@ -96,7 +96,7 @@ if "auth" not in st.session_state:
                 if match.iloc[0]['Status'] == 'Active':
                     st.session_state.update({"auth": True, "user": u_in, "biz_name": str(match.iloc[0]['Business_Name']), "sheet_name": str(match.iloc[0]['Sheet_Name'])})
                     st.rerun()
-                else: st.error("🚫 Accès suspendu. Contactez Fatima.")
+                else: st.error(f"🚫 Accès suspendu. Contactez Fatima Elbouhali.")
             else: st.error("❌ Identifiants incorrects.")
         except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
@@ -123,16 +123,16 @@ if not df.empty:
 # --- 3. SIDEBAR FORM (ALWAYS OPEN) ---
 with st.sidebar:
     st.markdown(f"👤 Admin: **{st.session_state['user'].upper()}**")
-    if st.button("Log out"):
+    if st.button("Déconnexion"):
         st.session_state.clear()
         st.rerun()
     st.markdown("---")
     st.header("➕ Nouveau Client")
     n_nom = st.text_input("Nom Complet Client")
-    n_phone = st.text_input("WhatsApp (212...)")
+    n_phone = st.text_input("WhatsApp (ex: 212...)")
     n_email = st.text_input("Email")
     s_choice = st.selectbox("Service Principal", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-    final_s = st.text_input("Nom Service") if s_choice == "Autre" else s_choice
+    final_s = st.text_input("Nom Service Spécifique") if s_choice == "Autre" else s_choice
     n_prix = st.number_input("Prix (DH)", min_value=0)
     n_deb = st.date_input("Date de Début", today)
     n_dur = st.number_input("Nombre de Mois", min_value=1, value=1)
@@ -149,7 +149,7 @@ with st.sidebar:
             st.rerun()
 
 # --- 4. MAIN BODY ---
-st.markdown(f'<div class="biz-banner">🛡️ {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 t1, t2, t3, t4 = st.tabs(["📊 ANALYTICS PRO", "👥 BASE DE DONNÉES", "🔔 RAPPELS", "📄 REÇUS"])
 
@@ -160,7 +160,7 @@ with t1:
         c2.metric("✅ CLIENTS ACTIFS", len(df[df['Status'] == 'Actif']))
         c3.metric("🚨 ALERTES (3j)", len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
         
-        st.markdown("### 📋 Résumé des Performances par Service")
+        st.markdown("### 📋 Résumé des Performances")
         summary = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
         summary.columns = ['Service', 'Clients', 'CA Total (DH)']
         st.write(summary.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
@@ -174,7 +174,7 @@ with t2:
             final_df = edited.drop(columns=['Days'], errors='ignore')
             c_sheet_obj.clear()
             c_sheet_obj.update([final_df.columns.values.tolist()] + final_df.astype(str).values.tolist())
-            st.success("✅ Cloud Synchronisé!")
+            st.success("✅ Database Updated!")
             st.rerun()
 
 with t3:
@@ -185,7 +185,7 @@ with t3:
             cl.warning(f"👤 **{r['Nom']}** | 📺 {r['Service']} | ⏳ **{r['Days']} j**")
             msg = f"Bonjour {r['Nom']}, votre abonnement {r['Service']} expire le {r['Date_Display']}. On renouvelle?"
             cr.link_button("📲 Rappeler", f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(msg)}")
-    else: st.info("🛡️ Tout est parfait اليوم!")
+    else: st.info("🛡️ Tout est parfait.")
 
 with t4:
     if not df.empty:
