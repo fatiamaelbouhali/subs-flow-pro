@@ -1,24 +1,16 @@
-import streamlit as st
-import pandas as pd
-from datetime import datetime, timedelta
-
-st.set_page_config(page_title="EMPIRE.PRO", layout="wide")
-
-# ======================================================
-# 🎨 STYLE ONLY – AUCUN CHANGEMENT DE LOGIQUE
-# ======================================================
+# ================== PRO UI THEME – CSS ONLY ==================
 st.markdown("""
 <style>
 
-/* ===== GLOBAL ===== */
+/* ================= GLOBAL ================= */
 .stApp {
-    background: linear-gradient(180deg, #f7f8fc 0%, #eef1f6 100%);
-    color: #111;
+    background-color: #f6f7fb;
+    color: #111111;
 }
 
-/* ===== SIDEBAR ===== */
+/* ================= SIDEBAR ================= */
 section[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #9a1f45 0%, #c13564 100%);
+    background: linear-gradient(180deg, #a8324a, #b83a5a);
     padding: 22px;
 }
 
@@ -26,53 +18,37 @@ section[data-testid="stSidebar"] * {
     color: #111 !important;
 }
 
-/* Logo */
+/* LOGO / TITLE */
 .sidebar-logo {
     background: linear-gradient(90deg, #7bdc9a, #f29ac0);
-    color: white;
     padding: 16px;
     border-radius: 18px;
     font-weight: 900;
     text-align: center;
     margin-bottom: 25px;
-    font-size: 18px;
+    color: white !important;
 }
 
-/* Menu buttons */
+/* MENU BUTTONS */
 div[role="radiogroup"] > label {
-    background: rgba(255,255,255,0.22);
-    border: 1.5px solid rgba(255,255,255,0.4);
-    border-radius: 16px;
-    padding: 12px 16px;
+    background: rgba(255,255,255,0.25);
+    border: 1.8px solid rgba(255,255,255,0.6);
+    border-radius: 18px;
+    padding: 12px 18px;
     margin-bottom: 12px;
-    font-weight: 700;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Active menu */
+/* ACTIVE MENU */
 div[role="radiogroup"] > label:has(input:checked) {
     background: linear-gradient(90deg, #7bdc9a, #f29ac0);
     color: #111 !important;
 }
 
-/* ===== BUTTONS ===== */
-.stButton > button {
-    background: linear-gradient(90deg, #7bdc9a, #f29ac0);
-    border-radius: 16px;
-    border: none;
-    font-weight: 800;
-    color: #111;
-    padding: 10px 18px;
-}
-
-/* ===== INPUTS ===== */
-input, textarea, select {
-    border-radius: 16px !important;
-    border: 2px solid #9a1f45 !important;
-    background: #f2f4fa !important;
-    font-weight: 600;
-}
-
-/* ===== HEADER ===== */
+/* ================= HEADER ================= */
 .header-pro {
     background: linear-gradient(90deg, #4f7cff, #8f5cff, #c13564);
     padding: 26px;
@@ -84,27 +60,41 @@ input, textarea, select {
     margin-bottom: 35px;
 }
 
-/* ===== KPI CARDS ===== */
-.kpi-card {
-    background: white;
+/* ================= INPUTS – AJOUT CLIENT ================= */
+input, textarea, select, div[data-baseweb="input"], div[data-baseweb="select"] {
+    border-radius: 18px !important;
+    border: 2px solid #8b1e3f !important;
+    background-color: #f1f3f9 !important;
+    font-weight: 600;
+    color: #111 !important;
+}
+
+/* ================= BUTTONS ================= */
+button {
+    border-radius: 18px !important;
+    font-weight: 800 !important;
+}
+
+/* ================= KPI CARDS ================= */
+div[data-testid="metric-container"] {
+    background: #ffffff;
     border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    font-weight: 900;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-.kpi-value {
-    color: #2fa866;
+div[data-testid="metric-container"] label {
+    font-weight: 800;
+    color: #444;
+}
+
+div[data-testid="metric-container"] div {
     font-size: 36px;
-}
-
-/* ===== RESUME TABLE ===== */
-.resume-title {
-    font-size: 28px;
     font-weight: 900;
-    margin: 25px 0 15px 0;
+    color: #2fa866;
 }
 
+/* ================= RÉSUMÉ PAR SERVICE ================= */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -124,68 +114,24 @@ tbody td {
     border-bottom: 1px solid #ddd;
 }
 
+/* ================= RAPPELS CARDS ================= */
+.rappel-card {
+    background: white;
+    border-left: 6px solid #7bdc9a;
+    border-radius: 20px;
+    padding: 16px 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.07);
+    font-weight: 700;
+}
+
+/* ================= EXPORT / LOGOUT ================= */
+section[data-testid="stSidebar"] button {
+    background: linear-gradient(90deg, #7bdc9a, #f29ac0) !important;
+    color: white !important;
+    font-weight: 900 !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
-
-# ======================================================
-# SIDEBAR (LOGIQUE INCHANGÉE)
-# ======================================================
-with st.sidebar:
-    st.markdown('<div class="sidebar-logo">EMPIRE.PRO</div>', unsafe_allow_html=True)
-
-    menu = st.radio(
-        "MENU",
-        ["GESTION", "ANALYTICS", "RAPPELS", "REÇUS"]
-    )
-
-    st.button("📤 Export Excel")
-    st.button("Déconnexion")
-
-# ======================================================
-# HEADER
-# ======================================================
-st.markdown('<div class="header-pro">FATIMA ELBOUHALI PRO</div>', unsafe_allow_html=True)
-
-# ======================================================
-# ANALYTICS (EXEMPLE – نفس المنطق)
-# ======================================================
-if menu == "ANALYTICS":
-
-    c1, c2, c3 = st.columns(3)
-
-    c1.markdown("""
-    <div class="kpi-card">
-        💰 Chiffre d'Affaires<br>
-        <div class="kpi-value">1741 DH</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    c2.markdown("""
-    <div class="kpi-card">
-        👥 Actifs<br>
-        <div class="kpi-value">8</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    c3.markdown("""
-    <div class="kpi-card">
-        🚨 Alertes<br>
-        <div class="kpi-value">8</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="resume-title">📊 Résumé par service</div>', unsafe_allow_html=True)
-
-    df = pd.DataFrame({
-        "Service": ["APT", "COURSERA", "ChatGPT", "IPTV", "Netflix", "Udemy", "udimy"],
-        "Clients": [3, 1, 2, 2, 6, 4, 1],
-        "CA": [410, 123, 140, 174, 406, 388, 100]
-    })
-
-    st.dataframe(df, use_container_width=True)
-
-# ======================================================
-# باقي الصفحات (GESTION / RAPPELS / REÇUS)
-# ======================================================
-# ⚠️ خليهُم بنفس الكود ديالك الحالي
-# ⚠️ ما تبدّل حتى function ولا calcul
+# ================== END THEME ==================
