@@ -12,143 +12,179 @@ import re
 
 # ================= PAGE CONFIG =================
 st.set_page_config(
-    page_title="EMPIRE PRO",
+    page_title="EMPIRE SIGNATURE PRO",
     page_icon="🛡️",
     layout="wide"
 )
 
-# ================= CLEAN REACT STYLE CSS =================
+# ================= THEME (WOW EFFECT) =================
 st.markdown("""
 <style>
-
-/* ===== GLOBAL ===== */
-.stApp {
-    background: #f9fafb;
-    font-family: Inter, system-ui, sans-serif;
+.stApp{
+    background: radial-gradient(circle at top,#0f172a,#020617);
+    color:#e5e7eb;
+    font-family:Inter,sans-serif;
 }
-
-/* ===== SIDEBAR ===== */
-[data-testid="stSidebar"] {
-    background: #ffffff;
-    border-right: 1px solid #e5e7eb;
+[data-testid="stSidebar"]{
+    background:#020617;
+    border-right:1px solid #1e293b;
 }
-
-.sidebar-logo {
-    background: linear-gradient(135deg,#6366f1,#ec4899);
-    padding: 18px;
-    border-radius: 16px;
-    text-align: center;
-    color: white;
-    font-size: 20px;
-    font-weight: 800;
-    margin-bottom: 20px;
+.sidebar-logo{
+    background:linear-gradient(135deg,#6366f1,#ec4899);
+    padding:20px;
+    border-radius:18px;
+    text-align:center;
+    color:white;
+    font-size:22px;
+    font-weight:900;
+    box-shadow:0 0 30px rgba(236,72,153,.6);
 }
-
-/* ===== NAV ===== */
-div[role="radiogroup"] label {
-    background: #f9fafb;
-    border-radius: 12px;
-    padding: 12px 18px;
-    border: 1px solid #e5e7eb;
-    margin-bottom: 8px;
+div[role="radiogroup"] label{
+    background:#020617;
+    border-radius:14px;
+    padding:14px;
+    border:1px solid #1e293b;
+    margin-bottom:8px;
 }
-
-div[role="radiogroup"] label[data-checked="true"] {
-    background: linear-gradient(135deg,#6366f1,#ec4899);
-    border: none;
+div[role="radiogroup"] label[data-checked="true"]{
+    background:linear-gradient(135deg,#6366f1,#ec4899);
+    box-shadow:0 0 20px rgba(99,102,241,.7);
 }
-
-div[role="radiogroup"] label[data-checked="true"] p {
-    color: white;
-    font-weight: 700;
+.biz-banner{
+    background:linear-gradient(135deg,#6366f1,#ec4899);
+    padding:26px;
+    border-radius:24px;
+    text-align:center;
+    color:white;
+    font-size:30px;
+    font-weight:900;
+    margin-bottom:30px;
+    box-shadow:0 0 40px rgba(99,102,241,.7);
 }
-
-/* ===== HEADER ===== */
-.biz-banner {
-    background: linear-gradient(135deg,#6366f1,#ec4899);
-    padding: 22px;
-    border-radius: 20px;
-    color: white;
-    text-align: center;
-    font-size: 26px;
-    font-weight: 800;
-    margin-bottom: 28px;
+div[data-testid="stMetric"]{
+    background:#020617;
+    border-radius:20px;
+    padding:24px;
+    border:1px solid #1e293b;
 }
-
-/* ===== METRICS ===== */
-div[data-testid="stMetric"] {
-    background: white;
-    border-radius: 18px;
-    padding: 22px;
-    box-shadow: 0 10px 25px rgba(0,0,0,.06);
-    border: 1px solid #e5e7eb;
+div[data-testid="stMetricValue"]>div{
+    font-size:36px;
+    font-weight:900;
+    color:white;
 }
-
-div[data-testid="stMetricValue"] > div {
-    font-size: 34px;
-    font-weight: 800;
-    color: #111827;
+input,textarea,select{
+    color:white!important;
+    font-weight:700!important;
 }
-
-/* ===== INPUTS ===== */
-div[data-baseweb="input"],
-div[data-baseweb="select"],
-.stDateInput div {
-    border-radius: 12px !important;
-    border: 1px solid #e5e7eb !important;
+.luxury-table thead tr{
+    background:linear-gradient(135deg,#6366f1,#ec4899);
+    color:white;
+    font-weight:900;
 }
-
-/* ===== TABLE ===== */
-.luxury-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 16px;
-    overflow: hidden;
+.luxury-table td{
+    padding:14px;
+    background:#020617;
+    color:#e5e7eb;
+    text-align:center;
+    border-bottom:1px solid #1e293b;
 }
-
-.luxury-table thead tr {
-    background: #111827;
-    color: white;
+.receipt-card{
+    background:#020617;
+    padding:28px;
+    border-radius:22px;
+    border:1px solid #6366f1;
+    box-shadow:0 0 25px rgba(99,102,241,.6);
 }
-
-.luxury-table td {
-    padding: 14px;
-    text-align: center;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-/* ===== RECEIPT ===== */
-.receipt-card {
-    background: #111827;
-    padding: 26px;
-    border-radius: 20px;
-    color: white;
-    font-family: monospace;
-}
-
 </style>
 """, unsafe_allow_html=True)
 
-# ================= UTILS =================
-def clean_phone(phone):
-    if not phone:
-        return ""
-    n = re.sub(r'\D', '', str(phone))
-    if n.startswith('0') and len(n) == 10:
-        n = '212' + n[1:]
-    elif len(n) == 9:
-        n = '212' + n
-    return n
+# ================= LANGUAGE SYSTEM =================
+LANG = {
+ "FR":{
+  "login":"CONNEXION","id":"Business ID","key":"Access Key",
+  "gestion":"GESTION","analytics":"ANALYTICS","rappels":"RAPPELS","recus":"REÇUS",
+  "revenue":"REVENU","actifs":"ACTIFS","alertes":"ALERTES",
+  "save":"ENREGISTRER","logout":"Déconnexion",
+  "rappel_msg":"""👋 Bonjour {nom},
 
-def export_excel(df):
-    buffer = io.BytesIO()
-    with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
-        df.to_excel(writer, index=False)
-    return buffer.getvalue()
+Votre abonnement *{service}* arrive à expiration le *{date}*.
+
+Merci de procéder au renouvellement afin d’éviter toute interruption.
+
+💼 {biz}
+""",
+  "recu_msg":"""🧾 REÇU OFFICIEL
+
+Client : {nom}
+Service : {service}
+Montant : {prix} DH
+Expiration : {date}
+
+Merci pour votre confiance.
+💼 {biz}
+"""
+ },
+ "EN":{
+  "login":"LOGIN","id":"Business ID","key":"Access Key",
+  "gestion":"MANAGEMENT","analytics":"ANALYTICS","rappels":"REMINDERS","recus":"RECEIPTS",
+  "revenue":"REVENUE","actifs":"ACTIVE","alertes":"ALERTS",
+  "save":"SAVE","logout":"Logout",
+  "rappel_msg":"""👋 Hello {nom},
+
+Your subscription *{service}* will expire on *{date}*.
+
+Please renew to avoid service interruption.
+
+💼 {biz}
+""",
+  "recu_msg":"""🧾 OFFICIAL RECEIPT
+
+Client : {nom}
+Service : {service}
+Amount : {prix} DH
+Expiry : {date}
+
+Thank you for your trust.
+💼 {biz}
+"""
+ },
+ "AR":{
+  "login":"تسجيل الدخول","id":"هوية العمل","key":"مفتاح الدخول",
+  "gestion":"إدارة","analytics":"إحصائيات","rappels":"تنبيهات","recus":"وصولات",
+  "revenue":"المداخيل","actifs":"نشط","alertes":"تنبيه",
+  "save":"حفظ","logout":"خروج",
+  "rappel_msg":"""👋 السلام عليكم {nom}
+
+نخبركم أن اشتراك *{service}* سينتهي بتاريخ *{date}*.
+
+المرجو التجديد لتفادي انقطاع الخدمة.
+
+💼 {biz}
+""",
+  "recu_msg":"""🧾 وصل رسمي
+
+الزبون : {nom}
+الخدمة : {service}
+المبلغ : {prix} درهم
+تاريخ الانتهاء : {date}
+
+شكرا لثقتكم.
+💼 {biz}
+"""
+ }
+}
+
+# ================= UTILS =================
+def clean_phone(p):
+    if not p: return ""
+    n=re.sub(r'\D','',str(p))
+    if n.startswith('0'): n='212'+n[1:]
+    if len(n)==9: n='212'+n
+    return n
 
 # ================= GOOGLE SHEETS =================
 def get_client():
-    creds = st.secrets["connections"]["gsheets"]
+    creds=st.secrets["connections"]["gsheets"]
     return gspread.authorize(
         Credentials.from_service_account_info(
             creds,
@@ -159,129 +195,114 @@ def get_client():
         )
     )
 
-client = get_client()
+client=get_client()
 
 # ================= LOGIN =================
 if "auth" not in st.session_state:
-    st.markdown('<div class="biz-banner">🚀 EMPIRE GATEWAY</div>', unsafe_allow_html=True)
+    lang=st.selectbox("🌍 Language",["FR","EN","AR"])
+    L=LANG[lang]
 
-    _, c, _ = st.columns([1,2,1])
-    with c:
-        user = st.text_input("Business ID")
-        pwd = st.text_input("Access Key", type="password")
-        if st.button("LOGIN", use_container_width=True):
-            master = client.open("Master_Admin").sheet1
-            mdf = pd.DataFrame(master.get_all_records())
-            ok = mdf[(mdf["User"] == user) & (mdf["Password"] == pwd)]
-            if not ok.empty:
-                r = ok.iloc[0]
-                st.session_state["auth"] = True
-                st.session_state["sheet"] = r["Sheet_Name"]
-                st.session_state["biz"] = r["Business_Name"]
-                st.rerun()
-            else:
-                st.error("Login ghalat")
+    st.markdown('<div class="biz-banner">🛡️ EMPIRE SIGNATURE PRO</div>',unsafe_allow_html=True)
+    u=st.text_input(L["id"])
+    p=st.text_input(L["key"],type="password")
+    if st.button(L["login"],use_container_width=True):
+        m=client.open("Master_Admin").sheet1
+        dfm=pd.DataFrame(m.get_all_records())
+        ok=dfm[(dfm["User"]==u)&(dfm["Password"]==p)]
+        if not ok.empty:
+            r=ok.iloc[0]
+            st.session_state.update({
+                "auth":True,
+                "lang":lang,
+                "sheet":r["Sheet_Name"],
+                "biz":r["Business_Name"]
+            })
+            st.rerun()
     st.stop()
 
 # ================= LOAD DATA =================
-sheet = client.open(st.session_state["sheet"]).sheet1
-df = pd.DataFrame(sheet.get_all_records())
-today = datetime.now().date()
+L=LANG[st.session_state["lang"]]
+sheet=client.open(st.session_state["sheet"]).sheet1
+df=pd.DataFrame(sheet.get_all_records())
+today=datetime.now().date()
 
 if not df.empty:
-    df["Prix"] = pd.to_numeric(df["Prix"], errors="coerce").fillna(0)
-    df["Date Fin"] = pd.to_datetime(df["Date Fin"], errors="coerce").dt.date
-    df["Days"] = df["Date Fin"].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
+    df["Prix"]=pd.to_numeric(df["Prix"],errors="coerce").fillna(0)
+    df["Date Fin"]=pd.to_datetime(df["Date Fin"],errors="coerce").dt.date
+    df["Days"]=df["Date Fin"].apply(lambda x:(x-today).days if pd.notnull(x) else 0)
 
 # ================= SIDEBAR =================
 with st.sidebar:
-    st.markdown('<div class="sidebar-logo">EMPIRE.PRO</div>', unsafe_allow_html=True)
-    menu = st.radio("MENU", ["GESTION","ANALYTICS","RAPPELS","REÇUS"], label_visibility="collapsed")
-    st.download_button("📥 Export Excel", export_excel(df), "clients.xlsx")
-    if st.button("Logout"):
+    st.markdown('<div class="sidebar-logo">EMPIRE.PRO</div>',unsafe_allow_html=True)
+    menu=st.radio("MENU",[L["gestion"],L["analytics"],L["rappels"],L["recus"]])
+    if st.button(L["logout"]):
         st.session_state.clear()
         st.rerun()
 
 # ================= HEADER =================
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz"]}</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz"]}</div>',unsafe_allow_html=True)
 
 # ================= GESTION =================
-if menu == "GESTION":
-    c1, c2 = st.columns(2)
+if menu==L["gestion"]:
+    c1,c2=st.columns(2)
     with c1:
-        nom = st.text_input("Nom")
-        phone = st.text_input("WhatsApp")
-        email = st.text_input("Email")
-        status = st.selectbox("Status", ["Actif","Payé","En Attente","Annulé"])
+        nom=st.text_input("Nom")
+        phone=st.text_input("WhatsApp")
+        email=st.text_input("Email")
+        status=st.selectbox("Status",["Actif","Payé","En Attente","Annulé"])
     with c2:
-        service = st.text_input("Service")
-        prix = st.number_input("Prix (DH)", 0)
-        start = st.date_input("Start Date", today)
-        months = st.number_input("Months", 1)
+        service=st.text_input("Service")
+        prix=st.number_input("Prix",0)
+        start=st.date_input("Start",today)
+        months=st.number_input("Months",1)
 
-    if st.button("SAVE", use_container_width=True):
-        fin = start + relativedelta(months=int(months))
-        new_row = {
-            "Nom": nom,
-            "Phone": clean_phone(phone),
-            "Email": email,
-            "Service": service,
-            "Prix": prix,
-            "Date Debut": start.strftime("%Y-%m-%d"),
-            "Months": months,
-            "Date Fin": fin.strftime("%Y-%m-%d"),
-            "Status": status
+    if st.button(L["save"],use_container_width=True):
+        fin=start+relativedelta(months=int(months))
+        new={
+            "Nom":nom,"Phone":clean_phone(phone),"Email":email,
+            "Service":service,"Prix":prix,
+            "Date Debut":start.strftime("%Y-%m-%d"),
+            "Months":months,
+            "Date Fin":fin.strftime("%Y-%m-%d"),
+            "Status":status
         }
-        df2 = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+        df2=pd.concat([df,pd.DataFrame([new])],ignore_index=True)
         sheet.clear()
-        sheet.update([df2.columns.values.tolist()] + df2.astype(str).values.tolist())
-        st.success("Client tzad ✔️")
+        sheet.update([df2.columns.tolist()]+df2.astype(str).values.tolist())
+        st.success("✔ Saved")
         st.rerun()
-
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(df,use_container_width=True)
 
 # ================= ANALYTICS =================
-elif menu == "ANALYTICS":
-    c1, c2, c3 = st.columns(3)
-    c1.metric("Revenue", f"{df['Prix'].sum()} DH")
-    c2.metric("Actifs", len(df[df["Status"]=="Actif"]))
-    c3.metric("Alerts", len(df[df["Days"]<=3]))
-
-    resume = df.groupby("Service").agg(
-        Clients=("Nom","count"),
-        CA=("Prix","sum")
-    ).reset_index()
-
-    st.markdown("### 📊 Résumé par service")
-    st.dataframe(resume, use_container_width=True)
-    st.plotly_chart(px.bar(df, x="Service", y="Prix", color="Status"), use_container_width=True)
+elif menu==L["analytics"]:
+    c1,c2,c3=st.columns(3)
+    c1.metric(L["revenue"],f"{df['Prix'].sum()} DH")
+    c2.metric(L["actifs"],len(df[df["Status"]=="Actif"]))
+    c3.metric(L["alertes"],len(df[df["Days"]<=3]))
+    st.plotly_chart(px.bar(df,x="Service",y="Prix",color="Status"),use_container_width=True)
 
 # ================= RAPPELS =================
-elif menu == "RAPPELS":
-    urg = df[df["Days"] <= 3]
-    if urg.empty:
-        st.success("Aucun rappel")
-    else:
-        for _, r in urg.iterrows():
-            msg = f"Salam {r['Nom']} 👋\nL'abonnement {r['Service']} ghadi يسالي f {r['Date Fin']}."
-            link = f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(msg)}"
-            c1, c2 = st.columns([3,1])
-            c1.warning(f"{r['Nom']} | {r['Days']} jours")
-            c2.link_button("📲 WhatsApp", link)
+elif menu==L["rappels"]:
+    urg=df[df["Days"]<=3]
+    for _,r in urg.iterrows():
+        msg=L["rappel_msg"].format(
+            nom=r["Nom"],service=r["Service"],
+            date=r["Date Fin"],biz=st.session_state["biz"]
+        )
+        st.link_button("📲 WhatsApp",
+            f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(msg)}"
+        )
 
 # ================= REÇUS =================
-elif menu == "REÇUS":
-    sel = st.selectbox("Client", df["Nom"].unique())
-    r = df[df["Nom"] == sel].iloc[0]
-
-    receipt = f"""
-REÇU
-Client : {r['Nom']}
-Email  : {r['Email']}
-Service: {r['Service']}
-Prix   : {r['Prix']} DH
-Expire : {r['Date Fin']}
-"""
-    st.markdown(f'<div class="receipt-card"><pre>{receipt}</pre></div>', unsafe_allow_html=True)
-    wa = f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(receipt)}"
-    st.link_button("📲 Envoyer WhatsApp", wa)
+elif menu==L["recus"]:
+    sel=st.selectbox("Client",df["Nom"].unique())
+    r=df[df["Nom"]==sel].iloc[0]
+    rec=L["recu_msg"].format(
+        nom=r["Nom"],service=r["Service"],
+        prix=r["Prix"],date=r["Date Fin"],
+        biz=st.session_state["biz"]
+    )
+    st.markdown(f'<div class="receipt-card"><pre>{rec}</pre></div>',unsafe_allow_html=True)
+    st.link_button("📲 WhatsApp",
+        f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(rec)}"
+    )
