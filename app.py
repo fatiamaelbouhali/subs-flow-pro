@@ -1,175 +1,120 @@
 
 import React, { useState } from 'react';
-import { Plus, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { BusinessStats } from '../types.ts';
+import { getSmartInsights } from '../services/geminiService.ts';
+import { Sparkles, TrendingUp, Users, AlertCircle } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-const GestionView: React.FC = () => {
-  const [formData, setFormData] = useState({
-    nom: '',
-    email: '',
-    prix: 0,
-    whatsapp: '',
-    service: 'Netflix',
-    startDate: new Date().toISOString().split('T')[0],
-    months: 1
-  });
+interface AnalyticsViewProps {
+  stats: BusinessStats;
+}
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'prix' || name === 'months' ? Number(value) : value
-    }));
-  };
+export default function AnalyticsView({ stats }: AnalyticsViewProps) {
+  const [insights, setInsights] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert('Enregistré avec succès !');
+  const handleGetInsights = async () => {
+    setLoading(true);
+    const result = await getSmartInsights(stats);
+    setInsights(result || "Erreur de connexion");
+    setLoading(false);
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
-      <div className="space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-            <Plus className="text-indigo-600 w-6 h-6" />
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">Chiffre d'Affaire</span>
+            <div className="p-2 bg-emerald-50 rounded-lg">
+              <TrendingUp className="text-emerald-500 w-4 h-4" />
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Gestion des Clients</h1>
+          <p className="text-3xl font-black text-slate-800">{stats.revenueTotal} DH</p>
         </div>
-        <p className="text-slate-500 text-sm font-medium ml-13">Ajoutez un nouvel abonné à votre base de données.</p>
+
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">Abonnés Actifs</span>
+            <div className="p-2 bg-indigo-50 rounded-lg">
+              <Users className="text-indigo-500 w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-black text-slate-800">{stats.actifs}</p>
+        </div>
+
+        <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="flex justify-between items-start mb-4">
+            <span className="text-slate-400 font-bold text-[10px] tracking-widest uppercase">Alertes Fin</span>
+            <div className="p-2 bg-rose-50 rounded-lg">
+              <AlertCircle className="text-rose-500 w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-3xl font-black text-slate-800">{stats.alertes}</p>
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-          {/* Nom */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nom & Prénom</label>
-            <input
-              type="text"
-              name="nom"
-              value={formData.nom}
-              onChange={handleInputChange}
-              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
-              placeholder="Nom du client"
-            />
-          </div>
-
-          {/* Email */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Email (Facultatif)</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
-              placeholder="client@domaine.com"
-            />
-          </div>
-
-          {/* WhatsApp */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">WhatsApp</label>
-            <input
-              type="text"
-              name="whatsapp"
-              value={formData.whatsapp}
-              onChange={handleInputChange}
-              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
-              placeholder="+212 ..."
-            />
-          </div>
-
-          {/* Service */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Service</label>
-            <div className="relative">
-              <select
-                name="service"
-                value={formData.service}
-                onChange={handleInputChange}
-                className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none appearance-none text-slate-700 font-bold"
-              >
-                <option>Netflix</option>
-                <option>IPTV</option>
-                <option>ChatGPT</option>
-                <option>Udemy</option>
-                <option>Spotify</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
-            </div>
-          </div>
-
-          {/* Prix */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tarif (DH)</label>
-            <div className="flex items-center group">
-              <button 
-                type="button" 
-                onClick={() => setFormData(p => ({...p, prix: Math.max(0, p.prix - 10)}))}
-                className="w-14 h-14 flex items-center justify-center border border-r-0 border-slate-200 rounded-l-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
-              >-</button>
-              <input
-                type="number"
-                name="prix"
-                value={formData.prix}
-                onChange={handleInputChange}
-                className="flex-1 h-14 border border-slate-200 text-center font-bold text-xl outline-none text-slate-800 bg-white"
-              />
-              <button 
-                type="button" 
-                onClick={() => setFormData(p => ({...p, prix: p.prix + 10}))}
-                className="w-14 h-14 flex items-center justify-center border border-l-0 border-slate-200 rounded-r-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
-              >+</button>
-            </div>
-          </div>
-
-          {/* Start Date */}
-          <div className="space-y-3">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Date de début</label>
-            <input
-              type="date"
-              name="startDate"
-              value={formData.startDate}
-              onChange={handleInputChange}
-              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 outline-none font-semibold text-slate-700"
-            />
-          </div>
-
-          {/* Months */}
-          <div className="space-y-3 md:col-start-1">
-            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Durée (Mois)</label>
-            <div className="flex items-center">
-              <button 
-                type="button" 
-                onClick={() => setFormData(p => ({...p, months: Math.max(1, p.months - 1)}))}
-                className="w-14 h-14 flex items-center justify-center border border-r-0 border-slate-200 rounded-l-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
-              >-</button>
-              <input
-                type="number"
-                name="months"
-                value={formData.months}
-                onChange={handleInputChange}
-                className="flex-1 h-14 border border-slate-200 text-center font-bold text-xl outline-none text-slate-800 bg-white"
-              />
-              <button 
-                type="button" 
-                onClick={() => setFormData(p => ({...p, months: p.months + 1}))}
-                className="w-14 h-14 flex items-center justify-center border border-l-0 border-slate-200 rounded-r-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
-              >+</button>
-            </div>
-          </div>
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <Sparkles className="text-amber-500 w-5 h-5" />
+          <h2 className="text-lg font-bold text-slate-800 tracking-tight">Analyse Intelligente</h2>
         </div>
+        {!insights ? (
+          <button
+            onClick={handleGetInsights}
+            disabled={loading}
+            className="px-8 py-3 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all disabled:opacity-50 shadow-lg shadow-indigo-100"
+          >
+            {loading ? "Calcul en cours..." : "Générer les insights de Fatima"}
+          </button>
+        ) : (
+          <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl text-slate-600 text-sm leading-relaxed font-medium italic">
+            "{insights}"
+          </div>
+        )}
+      </div>
 
-        <button
-          type="submit"
-          className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 active:scale-95"
-        >
-          <CheckCircle2 className="w-6 h-6" />
-          Sauvegarder les données
-        </button>
-      </form>
+      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-50 bg-slate-50/50">
+          <h2 className="text-lg font-bold text-slate-800 tracking-tight">Répartition par Service</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-indigo-600 text-white">
+                <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest">Service</th>
+                <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest text-center">Clients</th>
+                <th className="px-8 py-4 font-bold text-xs uppercase tracking-widest text-right">Revenu</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {stats.summaries.map((s, i) => (
+                <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="px-8 py-5 font-bold text-slate-700">{s.service}</td>
+                  <td className="px-8 py-5 font-bold text-indigo-600 text-center">{s.clients}</td>
+                  <td className="px-8 py-5 font-bold text-slate-800 text-right">{s.caTotal} DH</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm h-96">
+        <h2 className="text-lg font-bold text-slate-800 mb-8 tracking-tight">Performance Mensuelle</h2>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={stats.summaries}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            <XAxis dataKey="service" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} dy={10} />
+            <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 600}} />
+            <Tooltip 
+              cursor={{fill: '#f8fafc'}}
+              contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)', padding: '12px' }}
+            />
+            <Bar dataKey="caTotal" fill="#6366f1" radius={[8, 8, 0, 0]} barSize={45} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
-};
-
-export default GestionView;
+}
