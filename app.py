@@ -17,16 +17,32 @@ st.set_page_config(
     layout="wide"
 )
 
+# ================= GOOGLE SHEETS =================
+def get_client():
+    creds = st.secrets["connections"]["gsheets"]
+    return gspread.authorize(
+        Credentials.from_service_account_info(
+            creds,
+            scopes=[
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/drive"
+            ]
+        )
+    )
+
+client = get_client()
+
 # ================= LANGUAGES =================
 LANGS = {
     "FR": {
-        "nav": ["GESTION", "ANALYTICS", "RAPPELS", "REÇUS"],
+        "login": "Connexion",
+        "nav": ["GESTION","ANALYTICS","RAPPELS","REÇUS"],
         "rev": "CHIFFRE D'AFFAIRES",
         "act": "ACTIFS",
         "alert": "ALERTES",
         "export": "Exporter Excel",
         "logout": "Déconnexion",
-        "save": "ENREGISTRER",
+        "save": "Enregistrer",
         "rappel": lambda n,s,d,b:
             f"""Bonjour {n},
 
@@ -47,13 +63,14 @@ Merci pour votre confiance.
 {b}"""
     },
     "EN": {
-        "nav": ["MANAGEMENT", "ANALYTICS", "REMINDERS", "RECEIPTS"],
+        "login": "Login",
+        "nav": ["MANAGEMENT","ANALYTICS","REMINDERS","RECEIPTS"],
         "rev": "REVENUE",
         "act": "ACTIVE",
         "alert": "ALERTS",
         "export": "Export Excel",
         "logout": "Logout",
-        "save": "SAVE",
+        "save": "Save",
         "rappel": lambda n,s,d,b:
             f"""Hello {n},
 
@@ -74,7 +91,8 @@ Thank you for your trust.
 {b}"""
     },
     "AR": {
-        "nav": ["التسيير", "الإحصائيات", "التنبيهات", "الوصولات"],
+        "login": "دخول",
+        "nav": ["التسيير","الإحصائيات","التنبيهات","الوصولات"],
         "rev": "المداخيل",
         "act": "النشطون",
         "alert": "تنبيهات",
@@ -102,104 +120,32 @@ Thank you for your trust.
     }
 }
 
-# ================= THEME : EMPIRE FROST PRO =================
+# ================= THEME =================
 st.markdown("""
 <style>
-.stApp {
-    background: linear-gradient(180deg,#eef2ff,#f8fafc);
-    font-family: Inter, sans-serif;
-    color:#1f2933;
-}
-
-/* SIDEBAR */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg,#f9fafb,#eef2ff);
-    border-right:1px solid #e5e7eb;
-}
-
+.stApp { background:linear-gradient(180deg,#eef2ff,#f8fafc); font-family:Inter,sans-serif; }
+[data-testid="stSidebar"] { background:#f9fafb; border-right:1px solid #e5e7eb; }
 .sidebar-logo {
-    background: linear-gradient(135deg,#2563eb,#be185d);
-    padding:18px;
-    border-radius:16px;
-    color:white;
-    font-size:22px;
-    font-weight:900;
-    text-align:center;
-    box-shadow:0 10px 30px rgba(37,99,235,.35);
+ background:linear-gradient(135deg,#2563eb,#be185d);
+ padding:18px;border-radius:16px;
+ color:white;font-size:22px;font-weight:900;
+ text-align:center;
 }
-
-/* MENU */
-div[role="radiogroup"] label {
-    background:white;
-    border-radius:14px;
-    padding:14px 18px;
-    border:1px solid #e5e7eb;
-    margin-bottom:10px;
-}
-div[role="radiogroup"] label:hover {
-    background:#eef2ff;
-}
-div[role="radiogroup"] label[data-checked="true"] {
-    background:linear-gradient(135deg,#2563eb,#be185d);
-    color:white;
-    box-shadow:0 10px 25px rgba(190,24,93,.35);
-}
-
-/* HEADER */
 .biz-banner {
-    background: linear-gradient(135deg,#2563eb,#be185d);
-    padding:22px;
-    border-radius:22px;
-    color:white;
-    text-align:center;
-    font-size:28px;
-    font-weight:900;
-    margin-bottom:30px;
+ background:linear-gradient(135deg,#2563eb,#be185d);
+ padding:22px;border-radius:22px;
+ color:white;text-align:center;
+ font-size:28px;font-weight:900;
+ margin-bottom:30px;
 }
-
-/* METRICS */
 div[data-testid="stMetric"] {
-    background:white;
-    border-radius:18px;
-    padding:22px;
-    box-shadow:0 8px 25px rgba(0,0,0,.06);
+ background:white;border-radius:18px;
+ padding:22px;
+ box-shadow:0 8px 25px rgba(0,0,0,.06);
 }
-div[data-testid="stMetricLabel"] p {
-    color:#334155;
-    font-weight:800;
-}
-div[data-testid="stMetricValue"] > div {
-    font-size:34px;
-    font-weight:900;
-    color:#0f172a;
-}
-
-/* INPUTS */
-div[data-baseweb="input"],
-div[data-baseweb="select"],
-.stDateInput div {
-    border-radius:14px;
-    border:1px solid #c7d2fe;
-    background:white;
-}
-
-/* TABLE */
-.luxury-table thead tr {
-    background:linear-gradient(135deg,#2563eb,#be185d);
-    color:white;
-}
-.luxury-table td {
-    background:white;
-    color:#1f2937;
-}
-
-/* RECEIPT */
 .receipt-card {
-    background:white;
-    border-radius:20px;
-    padding:26px;
-    border-left:6px solid #be185d;
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
+ background:white;border-radius:20px;
+ padding:26px;border-left:6px solid #be185d;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -218,27 +164,33 @@ def export_excel(df):
         df.to_excel(w,index=False)
     return out.getvalue()
 
-# ================= GOOGLE SHEETS =================
-def get_client():
-    creds = st.secrets["connections"]["gsheets"]
-    return gspread.authorize(
-        Credentials.from_service_account_info(
-            creds,
-            scopes=[
-                "https://www.googleapis.com/auth/spreadsheets",
-                "https://www.googleapis.com/auth/drive"
-            ]
-        )
-    )
-
-client = get_client()
-
 # ================= LANGUAGE =================
 lang = st.selectbox("🌍 Language", ["FR","EN","AR"])
 T = LANGS[lang]
 
-# ================= LOAD DATA =================
-sheet = client.open(st.secrets["sheet_name"]).sheet1
+# ================= LOGIN =================
+if "auth" not in st.session_state:
+    st.markdown("<div class='biz-banner'>EMPIRE.PRO</div>",unsafe_allow_html=True)
+    u = st.text_input("Business ID")
+    p = st.text_input("Access Key", type="password")
+    if st.button(T["login"]):
+        master = client.open("Master_Admin").sheet1
+        mdf = pd.DataFrame(master.get_all_records())
+        ok = mdf[(mdf["User"]==u)&(mdf["Password"]==p)]
+        if not ok.empty:
+            r = ok.iloc[0]
+            st.session_state.update({
+                "auth":True,
+                "biz":r["Business_Name"],
+                "sheet":r["Sheet_Name"]
+            })
+            st.rerun()
+        else:
+            st.error("Access denied")
+    st.stop()
+
+# ================= LOAD DATA (FIXED) =================
+sheet = client.open(st.session_state["sheet"]).sheet1
 df = pd.DataFrame(sheet.get_all_records())
 today = datetime.now().date()
 
@@ -257,7 +209,7 @@ with st.sidebar:
         st.rerun()
 
 # ================= HEADER =================
-st.markdown("<div class='biz-banner'>FATIMA ELBOUHALI PRO</div>",unsafe_allow_html=True)
+st.markdown(f"<div class='biz-banner'>{st.session_state['biz']}</div>",unsafe_allow_html=True)
 
 # ================= ANALYTICS =================
 if menu == T["nav"][1]:
@@ -278,7 +230,7 @@ if menu == T["nav"][1]:
 elif menu == T["nav"][2]:
     urg = df[df["Days"]<=3]
     for _,r in urg.iterrows():
-        msg = T["rappel"](r["Nom"],r["Service"],r["Date Fin"],"EMPIRE.PRO")
+        msg = T["rappel"](r["Nom"],r["Service"],r["Date Fin"],st.session_state["biz"])
         link = f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(msg)}"
         st.link_button(f"📲 {r['Nom']}", link)
 
@@ -286,7 +238,7 @@ elif menu == T["nav"][2]:
 elif menu == T["nav"][3]:
     sel = st.selectbox("Client", df["Nom"].unique())
     r = df[df["Nom"]==sel].iloc[0]
-    recu = T["recu"](r["Nom"],r["Email"],r["Service"],r["Prix"],r["Date Fin"],"EMPIRE.PRO")
+    recu = T["recu"](r["Nom"],r["Email"],r["Service"],r["Prix"],r["Date Fin"],st.session_state["biz"])
     st.markdown(f"<div class='receipt-card'><pre>{recu}</pre></div>",unsafe_allow_html=True)
     wa = f"https://wa.me/{clean_phone(r['Phone'])}?text={urllib.parse.quote(recu)}"
     st.link_button("📲 WhatsApp", wa)
