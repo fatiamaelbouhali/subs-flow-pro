@@ -9,8 +9,8 @@ import plotly.express as px
 import io
 import re
 
-# SYSTEM STATUS: OMEGA V105 - PREMIUM WHATSAPP MESSAGE & EXCEL RESTORED
-st.set_page_config(page_title="EMPIRE_PRO_V105", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V106 - ANALYTICS FIRST & PREMIUM STABILITY
+st.set_page_config(page_title="EMPIRE_PRO_V106", layout="wide", page_icon="🛡️")
 
 # 💡 WHATSAPP CLEANER
 def clean_num(p):
@@ -19,30 +19,31 @@ def clean_num(p):
     elif len(num) == 9: num = '212' + num
     return num
 
-# --- 1. LANGUAGE DICTIONARY ---
+# --- 1. LANGUAGE DICTIONARY (REORDERED: ANALYTICS FIRST) ---
 LANGS = {
     "FR": {
         "ident": "Business Identity", "pass": "Access Key", "btn_log": "AUTHORIZE ACCESS",
-        "nav1": "👥 GESTION", "nav2": "📊 ANALYTICS", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
+        "nav1": "📊 ANALYTICS", "nav2": "👥 GESTION", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
         "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
         "save": "🚀 EXECUTE ENROLLMENT", "export": "📥 DOWNLOAD DATA (EXCEL)", "logout": "Déconnexion",
         "sum_title": "📋 RÉSUMÉ PAR SERVICE", "propre": "Tout est propre."
     },
     "AR": {
         "ident": "هوية العمل:", "pass": "مفتاح الدخول:", "btn_log": "تفعيل الدخول",
-        "nav1": "👥 إدارة الزبناء", "nav2": "📊 الإحصائيات", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
+        "nav1": "📊 الإحصائيات", "nav2": "👥 إدارة الزبناء", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
         "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
         "save": "🚀 حفظ في السحابة", "export": "📥 تحميل البيانات (إكسيل)", "logout": "خروج",
         "sum_title": "📋 ملخص الخدمات", "propre": "كل شيء منظم."
     }
 }
 
-# --- 2. THEMES & SIDEBAR ---
+# --- 2. SIDEBAR CONFIG ---
 with st.sidebar:
     st.markdown('<div style="background: #334155; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px;"><h2 style="color: white; margin:0;">EMPIRE.</h2></div>', unsafe_allow_html=True)
     sel_lang = st.selectbox("Language", ["FR", "AR"], label_visibility="collapsed")
     L = LANGS[sel_lang]
     st.markdown("---")
+    st.markdown("### 🚀 Menu")
     menu = st.radio("NAV", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
 
 # ⚡ THE SUPREME CSS
@@ -88,7 +89,7 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 5. DATA LOADING ---
+# --- 5. DATA ---
 try:
     c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
     df = pd.DataFrame(c_sheet_obj.get_all_records())
@@ -103,12 +104,11 @@ if not df.empty:
         df[c] = df[c].astype(str).replace('nan', '')
     df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-    df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.date
     df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 6. EXCEL PRO EXPORT (RESTORED) ---
+# EXCEL LOGIC
 def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
@@ -123,55 +123,56 @@ def to_excel_pro(df):
         writer.close()
     return out.getvalue()
 
+# SIDEBAR FOOTER
 with st.sidebar:
     st.markdown("---")
     st.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}_pro.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# --- 7. BODY ---
+# --- 6. BODY INTERFACE ---
 st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
-# PAGE GESTION
+# NAV 1: ANALYTICS (NOW FIRST)
 if menu == L["nav1"]:
-    st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
-    ca, cb, cc = st.columns(3)
-    with ca:
-        n_nom = st.text_input("Nom / الإسم")
-        n_phone = st.text_input("WhatsApp (ex: 212...)")
-        n_stat = st.selectbox("Status Initial", ["Actif", "Payé", "En Attente", "Annulé"])
-    with cb:
-        n_email = st.text_input("Email Address")
-        s_choice = st.selectbox("Service Principal", ["Netflix", "IPTV", "Canva", "ChatGPT", "Autre"])
-        final_s = st.text_input("Préciser Service") if s_choice == "Autre" else s_choice
-    with cc:
-        n_prix = st.number_input("Prix (DH)", min_value=0)
-        n_deb = st.date_input("Date de Début", today)
-        n_dur = st.number_input("Durée (Mois)", min_value=1)
-    
-    if st.button(L["save"], use_container_width=True):
-        if n_nom and n_phone:
-            n_fin = n_deb + relativedelta(months=int(n_dur))
-            new_r = [n_nom, n_phone, n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
-            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=required_cols)
-            df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
-            c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-            st.success("✅ Synchro OK!"); st.rerun()
-    st.markdown("---")
-    st.data_editor(df, use_container_width=True, num_rows="dynamic")
-
-# PAGE ANALYTICS
-elif menu == L["nav2"]:
     c1, c2, c3 = st.columns(3)
     c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
     c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
     c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
+    st.markdown(f"### {L['sum_title']}")
     if not df.empty:
         sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
         sum_df.columns = ['Service', 'Clients', 'CA Total']
         st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
 
-# PAGE RAPPELS (THE WOW EFFECT MESSAGE)
+# NAV 2: GESTION
+elif menu == L["nav2"]:
+    st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
+    ca, cb, cc = st.columns(3)
+    with ca:
+        n_nom = st.text_input("Nom / الإسم")
+        n_phone = st.text_input("WhatsApp")
+        n_stat = st.selectbox("Status", ["Actif", "Payé", "En Attente", "Annulé"])
+    with cb:
+        n_email = st.text_input("Email")
+        s_choice = st.selectbox("Service", ["Netflix", "IPTV", "Canva", "ChatGPT", "Autre"])
+        final_s = st.text_input("Service Name") if s_choice == "Autre" else s_choice
+    with cc:
+        n_prix = st.number_input("Prix (DH)", min_value=0)
+        n_deb = st.date_input("Start Date", today)
+        n_dur = st.number_input("Months", min_value=1, value=1)
+    if st.button(L["save"], use_container_width=True):
+        if n_nom and n_phone:
+            n_fin = n_deb + relativedelta(months=int(n_dur))
+            new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
+            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore')
+            df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
+            c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
+            st.success("✅ Synced!"); st.rerun()
+    st.markdown("---")
+    st.data_editor(df, use_container_width=True, num_rows="dynamic")
+
+# NAV 3: RAPPELS
 elif menu == L["nav3"]:
     st.header(L["nav3"])
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
@@ -179,30 +180,19 @@ elif menu == L["nav3"]:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            
-            # 💡 THE PREMIUM MESSAGE
             biz_name = st.session_state['biz_name'].upper()
-            pro_msg = (
-                f"Bonjour *{r['Nom']}*,\n\n"
-                f"Votre abonnement *{r['Service']}* arrive à expiration dans *{r['Days']} jours* ⏳\n"
-                f"Date de fin : *{r['Date_Display']}* 📅\n\n"
-                f"Pour éviter toute interruption, nous vous recommandons de renouveler votre abonnement dès maintenant.\n\n"
-                f"Service rapide ✅\n"
-                f"Assistance disponible ✅\n\n"
-                f"Merci pour votre confiance,\n"
-                f"*{biz_name}*"
-            )
-            
+            pro_msg = (f"Bonjour *{r['Nom']}*,\n\nVotre abonnement *{r['Service']}* arrive à expiration dans *{r['Days']} jours* ⏳\n"
+                       f"Date de fin : *{r['Date_Display']}* 📅\n\nPour éviter toute interruption, nous vous recommandons de renouveler dès maintenant.\n\n"
+                       f"Service rapide ✅\nAssistance disponible ✅\n\nMerci pour votre confiance,\n*{biz_name}*")
             wa = f"https://wa.me/{clean_num(r['Phone'])}?text={urllib.parse.quote(pro_msg)}"
             cr.link_button("📲 TIRER", wa)
     else: st.success(L["propre"])
 
-# PAGE REÇUS
+# NAV 4: REÇUS
 elif menu == L["nav4"]:
-    st.header(L["nav4"])
     if not df.empty:
-        sel = st.selectbox("Select Target:", df['Nom'].unique())
+        sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*"
+        reçu = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🤝 Merci !"
         st.code(reçu)
         st.link_button("📲 SEND", f"https://wa.me/{clean_num(c['Phone'])}?text={urllib.parse.quote(reçu)}")
