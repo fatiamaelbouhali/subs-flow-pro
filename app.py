@@ -1,205 +1,147 @@
-import streamlit as st
-import pandas as pd
-import gspread
-from google.oauth2.service_account import Credentials
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import urllib.parse
-import plotly.express as px
-import io
-import re
+st.markdown("""
+<style>
 
-# SYSTEM STATUS: OMEGA V103 - WHATSAPP NUCLEAR CLEANER & BLUE BOLD METRICS
-st.set_page_config(page_title="EMPIRE_PRO_V103", layout="wide", page_icon="🛡️")
-
-# 💡 THE FINAL WHATSAPP CLEANER (ZERO ERROR GUARANTEED)
-def omega_whatsapp_fix(phone_str):
-    if not phone_str: return ""
-    # 7yed ay 7erf, space, +, -, .
-    num = re.sub(r'[^0-9]', '', str(phone_str))
-    # Fix Morocco format
-    if num.startswith('00212'): num = num[2:]
-    elif num.startswith('0'): num = '212' + num[1:]
-    elif len(num) == 9: num = '212' + num
-    return num
-
-# --- 1. LANGUAGE DICTIONARY ---
-LANGS = {
-    "FR": {
-        "ident": "Business Identity", "pass": "Access Key", "btn_log": "AUTHORIZE ACCESS",
-        "nav1": "👥 GESTION", "nav2": "📊 ANALYTICS", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
-        "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
-        "save": "🚀 EXECUTE ENROLLMENT", "export": "📥 DOWNLOAD DATA", "msg": "Bonjour, votre abonnement expire bientôt.",
-        "sum_title": "📋 RÉSUMÉ PAR SERVICE", "logout": "Déconnexion"
-    },
-    "AR": {
-        "ident": "هوية العمل:", "pass": "مفتاح الدخول:", "btn_log": "تفعيل الدخول",
-        "nav1": "👥 إدارة الزبناء", "nav2": "📊 الإحصائيات", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
-        "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
-        "save": "🚀 حفظ في السحابة", "export": "📥 تحميل البيانات", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
-        "sum_title": "📋 ملخص الخدمات", "logout": "خروج"
-    }
+/* ===== GLOBAL ===== */
+.stApp {
+    background: #f9fafb;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-# --- 2. THE SUPREME CSS (BLUE BOLD METRICS & 360 BORDERS) ---
-st.markdown("""
-    <style>
-    .stApp { background-color: #fff5f7 !important; }
-    [data-testid="stSidebar"] { background-color: #f1f5f9 !important; border-right: 2px solid #e2e8f0; }
-    
-    /* Metrics Fix: BOLD & BLUE */
-    div[data-testid="stMetricValue"] > div { 
-        color: #1e3a8a !important; /* Royal Blue */
-        font-weight: 900 !important; 
-        font-size: 38px !important;
-    }
-    div[data-testid="stMetricLabel"] p { 
-        color: #1e3a8a !important; /* Royal Blue */
-        font-weight: 900 !important; 
-        text-transform: uppercase !important;
-    }
-    div[data-testid="stMetric"] { background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }
+/* ===== SIDEBAR ===== */
+[data-testid="stSidebar"] {
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
 
-    /* Input Borders 360° */
-    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div {
-        border: 3px solid #800000 !important; border-radius: 14px !important;
-        background-color: #ffffff !important; padding: 2px !important;
-    }
-    input, select, textarea, div[role="button"] { color: #1e3a8a !important; font-weight: 800 !important; }
+.sidebar-logo {
+    background: linear-gradient(135deg,#6366f1,#ec4899);
+    padding: 18px;
+    border-radius: 14px;
+    text-align: center;
+    color: white;
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
 
-    .biz-banner { background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 20px; border-radius: 20px; color: white !important; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; }
-    .luxury-table thead tr { background-color: #f97316 !important; color: white !important; font-weight: 900; }
-    .luxury-table td { padding: 12px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }
-    </style>
-    """, unsafe_allow_html=True)
+/* ===== NAV RADIO ===== */
+div[role="radiogroup"] label {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 12px 18px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    transition: all .2s ease;
+}
 
-# --- 3. CONNECTION ---
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
-def get_client():
-    creds_dict = st.secrets["connections"]["gsheets"]
-    return gspread.authorize(Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']))
+div[role="radiogroup"] label:hover {
+    background: #eef2ff;
+    border-color: #6366f1;
+}
 
-client = get_client()
+div[role="radiogroup"] label[data-checked="true"] {
+    background: linear-gradient(135deg,#6366f1,#ec4899);
+    border: none;
+}
 
-# --- 4. LOGIN ---
-if "auth" not in st.session_state:
-    st.markdown('<div style="background: linear-gradient(135deg, #f97316 0%, #1e3a8a 100%); padding: 30px; border-radius: 20px; color: white; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px;">🛡️ EMPIRE GATEWAY</div>', unsafe_allow_html=True)
-    _, col_log, _ = st.columns([1, 2, 1])
-    with col_log:
-        sel_lang = st.selectbox("Language", ["FR", "AR"])
-        u_in = st.text_input(LANGS[sel_lang]["ident"])
-        p_in = st.text_input(LANGS[sel_lang]["pass"], type="password")
-        if st.button(LANGS[sel_lang]["btn_log"], use_container_width=True):
-            m_sheet = client.open("Master_Admin").sheet1
-            m_df = pd.DataFrame(m_sheet.get_all_records())
-            match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
-            if not match.empty:
-                user_row = match.iloc[0]
-                st.session_state.update({"auth": True, "user": u_in, "lang": sel_lang, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
-                st.rerun()
-    st.stop()
+div[role="radiogroup"] label[data-checked="true"] p {
+    color: white;
+    font-weight: 700;
+}
 
-# --- 5. DATA ---
-L = LANGS[st.session_state["lang"]]
-c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
-df = pd.DataFrame(c_sheet_obj.get_all_records())
-today = datetime.now().date()
+/* ===== HEADER / BANNER ===== */
+.biz-banner {
+    background: linear-gradient(135deg,#6366f1,#ec4899);
+    padding: 22px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 28px;
+}
 
-if not df.empty:
-    for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
-        if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
-    df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
-    df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-    df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
-    df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
-    df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
+/* ===== METRICS ===== */
+div[data-testid="stMetric"] {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    border: 1px solid #e5e7eb;
+}
 
-# SIDEBAR DOWNLOAD & LOGOUT
-def to_excel_pro(df):
-    out = io.BytesIO()
-    with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='EmpireData')
-        workbook = writer.book
-        worksheet = writer.sheets['EmpireData']
-        header_f = workbook.add_format({'bold': True, 'bg_color': '#f97316', 'font_color': 'white', 'border': 1})
-        for i, col in enumerate(df.columns):
-            worksheet.write(0, i, col, header_f)
-            column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
-            worksheet.set_column(i, i, column_len)
-        writer.close()
-    return out.getvalue()
+div[data-testid="stMetricValue"] > div {
+    color: #111827;
+    font-weight: 800;
+    font-size: 34px;
+}
 
-with st.sidebar:
-    st.markdown(f"👑 **{st.session_state['user'].upper()}**")
-    menu = st.radio("NAV", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
-    st.markdown("---")
-    st.download_button(label=L["export"], data=to_excel_pro(df), file_name=f"{st.session_state['user']}_pro.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    if st.button(L["logout"]): st.session_state.clear(); st.rerun()
+div[data-testid="stMetricLabel"] p {
+    color: #6b7280;
+    font-weight: 600;
+    letter-spacing: .03em;
+}
 
-# --- 6. BODY ---
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+/* ===== INPUTS ===== */
+div[data-baseweb="input"],
+div[data-baseweb="select"],
+div[data-baseweb="base-input"],
+.stDateInput div {
+    border-radius: 12px !important;
+    border: 1px solid #e5e7eb !important;
+    background: #ffffff !important;
+}
 
-# PAGE GESTION
-if menu == L["nav1"]:
-    st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        n_nom = st.text_input("Nom / الإسم")
-        n_phone = st.text_input("WhatsApp")
-        n_stat = st.selectbox("Status", ["Actif", "Payé", "En Attente", "Annulé"])
-    with col2:
-        n_email = st.text_input("Email")
-        s_choice = st.selectbox("Service", ["Netflix", "IPTV", "Canva", "ChatGPT", "Autre"])
-        final_s = st.text_input("Service Name") if s_choice == "Autre" else s_choice
-    with col3:
-        n_prix = st.number_input("Prix (DH)", min_value=0)
-        n_deb = st.date_input("Start Date", today)
-        n_dur = st.number_input("Months", min_value=1, value=1)
+input, select, textarea {
+    color: #111827 !important;
+    font-weight: 500 !important;
+}
 
-    if st.button(L["save"], use_container_width=True):
-        if n_nom and n_phone:
-            n_fin = n_deb + relativedelta(months=int(n_dur))
-            new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
-            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore')
-            df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
-            c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-            st.success("PROTOCOL SYNCED!"); st.rerun()
-    st.markdown("---")
-    st.data_editor(df, use_container_width=True, num_rows="dynamic")
+/* ===== BUTTONS ===== */
+button {
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}
 
-# PAGE ANALYTICS
-elif menu == L["nav2"]:
-    c1, c2, c3 = st.columns(3)
-    c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
-    c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
-    c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
-    if not df.empty:
-        sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        sum_df.columns = ['Service', 'Clients', 'CA Total']
-        st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
+button[kind="primary"] {
+    background: linear-gradient(135deg,#6366f1,#ec4899) !important;
+    color: white !important;
+    border: none !important;
+}
 
-# PAGE RAPPELS
-elif menu == L["nav3"]:
-    st.header(L["nav3"])
-    urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
-    if not urgent.empty:
-        for _, r in urgent.iterrows():
-            cl, cr = st.columns([3, 1])
-            cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            # 💡 NUCLEAR FIX
-            clean_num = omega_whatsapp_fix(r['Phone'])
-            wa_url = f"https://wa.me/{clean_num}?text={urllib.parse.quote(L['msg'])}"
-            cr.link_button("📲 TIRER", wa_url)
-    else: st.success("Safe!")
+/* ===== TABLE ===== */
+.luxury-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,.06);
+}
 
-# PAGE REÇUS
-elif menu == L["nav4"]:
-    if not df.empty:
-        sel = st.selectbox("Client:", df['Nom'].unique())
-        c = df[df['Nom'] == sel].iloc[0]
-        rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
-        st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
-        # 💡 NUCLEAR FIX
-        clean_num = omega_whatsapp_fix(c['Phone'])
-        st.link_button("📲 SEND", f"https://wa.me/{clean_num}?text={urllib.parse.quote(rt)}")
+.luxury-table thead tr {
+    background: #111827;
+    color: white;
+    font-weight: 700;
+}
+
+.luxury-table td {
+    padding: 14px;
+    text-align: center;
+    background: white;
+    color: #111827;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ===== RECEIPT ===== */
+.receipt-card {
+    background: #111827;
+    padding: 28px;
+    border-radius: 22px;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 0 10px 30px rgba(0,0,0,.3);
+}
+
+</style>
+""", unsafe_allow_html=True)
