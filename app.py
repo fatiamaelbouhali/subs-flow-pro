@@ -5,53 +5,40 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-import urllib.parse
 import plotly.express as px
-import io
 import re
 
 # ================= CONFIG =================
-st.set_page_config(
-    page_title="EMPIRE PRO",
-    page_icon="🚀",
-    layout="wide"
-)
+st.set_page_config(page_title="EMPIRE PRO", page_icon="🚀", layout="wide")
 
 # ================= CSS =================
 st.markdown("""
 <style>
-.stApp { background-color: #f8fafc; font-family: Inter, sans-serif; }
+.stApp { background-color:#f8fafc; font-family:Inter,sans-serif; }
 [data-testid="stSidebar"] { background:#fff; border-right:1px solid #e5e7eb; }
 .sidebar-logo {
-    background: linear-gradient(135deg,#6366f1,#ec4899);
-    padding:20px; border-radius:16px;
-    text-align:center; color:white;
-    font-size:22px; font-weight:800;
+ background:linear-gradient(135deg,#6366f1,#ec4899);
+ padding:20px;border-radius:16px;
+ text-align:center;color:white;
+ font-size:22px;font-weight:800;
 }
 div[role="radiogroup"] label {
-    background:white; border-radius:12px;
-    padding:12px 16px; border:1px solid #e5e7eb;
-    margin-bottom:8px;
+ background:white;border-radius:12px;
+ padding:12px 16px;border:1px solid #e5e7eb;
+ margin-bottom:8px;
 }
 div[role="radiogroup"] label[data-checked="true"] {
-    background:#6366f1;
+ background:#6366f1;
 }
 div[role="radiogroup"] label[data-checked="true"] p {
-    color:white; font-weight:700;
+ color:white;font-weight:700;
 }
-div[data-baseweb="input"], div[data-baseweb="select"], .stDateInput div {
-    border-radius:12px !important;
-    border:1px solid #e5e7eb !important;
+div[data-baseweb="input"],div[data-baseweb="select"],.stDateInput div {
+ border-radius:12px !important;border:1px solid #e5e7eb !important;
 }
 div[data-testid="stMetric"] {
-    background:white; padding:24px;
-    border-radius:16px;
-    box-shadow:0 8px 24px rgba(0,0,0,0.06);
-}
-.luxury-table thead tr { background:#6366f1; color:white; }
-.receipt-card {
-    background:linear-gradient(135deg,#111827,#1f2933);
-    padding:28px; border-radius:24px; color:white;
+ background:white;padding:24px;border-radius:16px;
+ box-shadow:0 8px 24px rgba(0,0,0,.06);
 }
 </style>
 """, unsafe_allow_html=True)
@@ -94,28 +81,22 @@ if "auth" not in st.session_state:
         user = st.text_input("Business ID")
         pwd = st.text_input("Access Key", type="password")
         if st.button("LOGIN", use_container_width=True):
-            # ⚠️ اسم الشيت خاصو يكون EXACT
-            master_sheet = client.open("Master_Admin").sheet1
-            mdf = pd.DataFrame(master_sheet.get_all_records())
-
-            ok = mdf[
-                (mdf["User"].astype(str)==user) &
-                (mdf["Password"].astype(str)==pwd)
-            ]
+            master = client.open("Master_Admin").sheet1
+            mdf = pd.DataFrame(master.get_all_records())
+            ok = mdf[(mdf["User"]==user)&(mdf["Password"]==pwd)]
             if not ok.empty:
-                row = ok.iloc[0]
+                r = ok.iloc[0]
                 st.session_state.update({
                     "auth":True,
-                    "user":user,
-                    "sheet":row["Sheet_Name"],
-                    "biz":row["Business_Name"]
+                    "sheet":r["Sheet_Name"],
+                    "biz":r["Business_Name"]
                 })
                 st.rerun()
             else:
                 st.error("Login ghalat")
     st.stop()
 
-# ================= LOAD CLIENT DATA =================
+# ================= LOAD DATA =================
 sheet = client.open(st.session_state["sheet"]).sheet1
 df = pd.DataFrame(sheet.get_all_records())
 today = datetime.now().date()
@@ -128,7 +109,7 @@ if not df.empty:
 # ================= SIDEBAR =================
 with st.sidebar:
     st.markdown('<div class="sidebar-logo">EMPIRE.PRO</div>', unsafe_allow_html=True)
-    menu = st.radio("MENU", ["GESTION","ANALYTICS","RAPPELS","REÇUS"], label_visibility="collapsed")
+    menu = st.radio("MENU",["GESTION","ANALYTICS","RAPPELS","REÇUS"],label_visibility="collapsed")
     if st.button("Logout"):
         st.session_state.clear()
         st.rerun()
@@ -137,13 +118,12 @@ with st.sidebar:
 st.markdown(f"""
 <div style="background:linear-gradient(135deg,#6366f1,#ec4899);
 padding:18px;border-radius:18px;color:white;
-text-align:center;font-size:26px;font-weight:800;
-margin-bottom:24px;">
+text-align:center;font-size:26px;font-weight:800;margin-bottom:24px;">
 👤 {st.session_state["biz"]}
 </div>
 """, unsafe_allow_html=True)
 
-# ================= PAGES =================
+# ================= GESTION =================
 if menu=="GESTION":
     c1,c2=st.columns(2)
     with c1:
@@ -158,15 +138,27 @@ if menu=="GESTION":
 
     if st.button("SAVE",use_container_width=True):
         fin=start+relativedelta(months=int(months))
-        new=[nom,phone,service,prix,start,months,fin,status]
-        df2=pd.concat([df,pd.DataFrame([new],columns=df.columns)],ignore_index=True)
+
+        new_row = {
+            "Nom": nom,
+            "Phone": clean_phone(phone),
+            "Service": service,
+            "Prix": prix,
+            "Date Debut": start.strftime("%Y-%m-%d"),
+            "Months": months,
+            "Date Fin": fin.strftime("%Y-%m-%d"),
+            "Status": status
+        }
+
+        df2 = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         sheet.clear()
-        sheet.update([df2.columns.values.tolist()]+df2.astype(str).values.tolist())
-        st.success("Saved")
+        sheet.update([df2.columns.values.tolist()] + df2.astype(str).values.tolist())
+        st.success("Saved successfully")
         st.rerun()
 
     st.dataframe(df,use_container_width=True)
 
+# ================= ANALYTICS =================
 elif menu=="ANALYTICS":
     c1,c2,c3=st.columns(3)
     c1.metric("Revenue",f"{df['Prix'].sum()} DH")
@@ -174,21 +166,20 @@ elif menu=="ANALYTICS":
     c3.metric("Alerts",len(df[df["Days"]<=3]))
     st.plotly_chart(px.bar(df,x="Service",y="Prix",color="Status"),use_container_width=True)
 
+# ================= RAPPELS =================
 elif menu=="RAPPELS":
     urg=df[df["Days"]<=3]
     for _,r in urg.iterrows():
-        num=clean_phone(r["Phone"])
         st.warning(f"{r['Nom']} | {r['Days']} jours")
-        st.link_button("WhatsApp",f"https://wa.me/{num}?text=Votre abonnement expire bientôt")
 
+# ================= REÇUS =================
 elif menu=="REÇUS":
     sel=st.selectbox("Client",df["Nom"].unique())
     r=df[df["Nom"]==sel].iloc[0]
-    txt=f"""
+    st.code(f"""
 REÇU
 Client: {r['Nom']}
 Service: {r['Service']}
 Prix: {r['Prix']} DH
 Expire: {r['Date Fin']}
-"""
-    st.markdown(f"<div class='receipt-card'><pre>{txt}</pre></div>",unsafe_allow_html=True)
+""")
