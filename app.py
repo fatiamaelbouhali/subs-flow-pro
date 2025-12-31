@@ -9,22 +9,18 @@ import plotly.express as px
 import io
 import re
 
-# SYSTEM STATUS: OMEGA V102 - WHATSAPP NUCLEAR FIX & EXCEL STABILITY
-st.set_page_config(page_title="EMPIRE_PRO_V102", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V103 - WHATSAPP NUCLEAR CLEANER & BLUE BOLD METRICS
+st.set_page_config(page_title="EMPIRE_PRO_V103", layout="wide", page_icon="🛡️")
 
-# 💡 THE NUCLEAR CLEANER: Force absolute WhatsApp format
-def absolute_clean_phone(phone_str):
+# 💡 THE FINAL WHATSAPP CLEANER (ZERO ERROR GUARANTEED)
+def omega_whatsapp_fix(phone_str):
     if not phone_str: return ""
-    # 1. 7eyed ga3 l-khwa o l- برموز (+, -, spaces)
-    num = re.sub(r'\D', '', str(phone_str))
-    # 2. Ila kant k-t-bda b 00 force 212
-    if num.startswith('00'): num = num[2:]
-    # 3. Ila bdat b 0 (10 digits) force 212
-    if num.startswith('0') and len(num) == 10:
-        num = '212' + num[1:]
-    # 4. Ila na9ssaha 212 (9 digits) force it
-    if len(num) == 9:
-        num = '212' + num
+    # 7yed ay 7erf, space, +, -, .
+    num = re.sub(r'[^0-9]', '', str(phone_str))
+    # Fix Morocco format
+    if num.startswith('00212'): num = num[2:]
+    elif num.startswith('0'): num = '212' + num[1:]
+    elif len(num) == 9: num = '212' + num
     return num
 
 # --- 1. LANGUAGE DICTIONARY ---
@@ -45,22 +41,35 @@ LANGS = {
     }
 }
 
-# --- 2. THEMES & SIDEBAR CSS ---
+# --- 2. THE SUPREME CSS (BLUE BOLD METRICS & 360 BORDERS) ---
 st.markdown("""
     <style>
     .stApp { background-color: #fff5f7 !important; }
     [data-testid="stSidebar"] { background-color: #f1f5f9 !important; border-right: 2px solid #e2e8f0; }
-    .sidebar-logo { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 25px; color: white !important; font-size: 24px; font-weight: 900; }
-    div[role="radiogroup"] label { background-color: white !important; border-radius: 12px !important; padding: 12px 20px !important; transition: 0.3s !important; border: 1px solid #e2e8f0 !important; margin-bottom: 8px !important; }
-    div[role="radiogroup"] label[data-checked="true"] { background: #14b8a6 !important; border: none !important; box-shadow: 0 4px 15px rgba(20, 184, 166, 0.4) !important; }
-    div[role="radiogroup"] label[data-checked="true"] p { color: white !important; font-weight: 900 !important; }
-    div[role="radiogroup"] [data-testid="stWidgetLabel"] + div div div { display: none !important; }
-    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div { border: 3px solid #800000 !important; border-radius: 14px !important; background-color: #ffffff !important; padding: 2px !important; }
+    
+    /* Metrics Fix: BOLD & BLUE */
+    div[data-testid="stMetricValue"] > div { 
+        color: #1e3a8a !important; /* Royal Blue */
+        font-weight: 900 !important; 
+        font-size: 38px !important;
+    }
+    div[data-testid="stMetricLabel"] p { 
+        color: #1e3a8a !important; /* Royal Blue */
+        font-weight: 900 !important; 
+        text-transform: uppercase !important;
+    }
+    div[data-testid="stMetric"] { background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }
+
+    /* Input Borders 360° */
+    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div {
+        border: 3px solid #800000 !important; border-radius: 14px !important;
+        background-color: #ffffff !important; padding: 2px !important;
+    }
     input, select, textarea, div[role="button"] { color: #1e3a8a !important; font-weight: 800 !important; }
-    .luxury-table { width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }
+
+    .biz-banner { background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 20px; border-radius: 20px; color: white !important; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px; border: 3px solid #ffffff; }
     .luxury-table thead tr { background-color: #f97316 !important; color: white !important; font-weight: 900; }
-    .luxury-table td { padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }
-    .receipt-card { background-color: #1e3a8a !important; padding: 30px !important; border-radius: 2.5rem !important; color: #ffffff !important; font-family: 'Courier New', monospace; border: 2px solid rgba(255,255,255,0.1); }
+    .luxury-table td { padding: 12px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -90,7 +99,7 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 5. APP DATA ---
+# --- 5. DATA ---
 L = LANGS[st.session_state["lang"]]
 c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
 df = pd.DataFrame(c_sheet_obj.get_all_records())
@@ -105,32 +114,32 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# EXCEL LOGIC PRO (FIXED)
-def to_excel_pro_v2(df):
+# SIDEBAR DOWNLOAD & LOGOUT
+def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='EmpireData')
         workbook = writer.book
         worksheet = writer.sheets['EmpireData']
-        header_format = workbook.add_format({'bold': True, 'bg_color': '#f97316', 'font_color': 'white', 'border': 1})
+        header_f = workbook.add_format({'bold': True, 'bg_color': '#f97316', 'font_color': 'white', 'border': 1})
         for i, col in enumerate(df.columns):
-            worksheet.write(0, i, col, header_format)
+            worksheet.write(0, i, col, header_f)
             column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
             worksheet.set_column(i, i, column_len)
         writer.close()
     return out.getvalue()
 
-# SIDEBAR NAV
 with st.sidebar:
-    st.markdown('<div class="sidebar-logo">EMPIRE<span style="color: #2dd4bf;">.</span></div>', unsafe_allow_html=True)
+    st.markdown(f"👑 **{st.session_state['user'].upper()}**")
     menu = st.radio("NAV", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
     st.markdown("---")
-    st.download_button(label=L["export"], data=to_excel_pro_v2(df), file_name=f"{st.session_state['user']}_export.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    st.download_button(label=L["export"], data=to_excel_pro(df), file_name=f"{st.session_state['user']}_pro.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
 # --- 6. BODY ---
-st.markdown(f'<div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px;">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
+# PAGE GESTION
 if menu == L["nav1"]:
     st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns(3)
@@ -154,10 +163,11 @@ if menu == L["nav1"]:
             df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore')
             df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
             c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-            st.success("✅ PROTOCOL SYNCED!"); st.rerun()
+            st.success("PROTOCOL SYNCED!"); st.rerun()
     st.markdown("---")
     st.data_editor(df, use_container_width=True, num_rows="dynamic")
 
+# PAGE ANALYTICS
 elif menu == L["nav2"]:
     c1, c2, c3 = st.columns(3)
     c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
@@ -165,9 +175,11 @@ elif menu == L["nav2"]:
     c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
     if not df.empty:
         sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
+        sum_df.columns = ['Service', 'Clients', 'CA Total']
         st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
         st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
 
+# PAGE RAPPELS
 elif menu == L["nav3"]:
     st.header(L["nav3"])
     urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
@@ -175,18 +187,19 @@ elif menu == L["nav3"]:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            # 💡 NUCLEAR WHATSAPP FIX
-            target_num = absolute_clean_phone(r['Phone'])
-            wa_url = f"https://wa.me/{target_num}?text={urllib.parse.quote(L['msg'])}"
+            # 💡 NUCLEAR FIX
+            clean_num = omega_whatsapp_fix(r['Phone'])
+            wa_url = f"https://wa.me/{clean_num}?text={urllib.parse.quote(L['msg'])}"
             cr.link_button("📲 TIRER", wa_url)
     else: st.success("Safe!")
 
+# PAGE REÇUS
 elif menu == L["nav4"]:
     if not df.empty:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*"
+        rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
         st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
-        # 💡 NUCLEAR WHATSAPP FIX FOR RECEIPTS
-        target_num = absolute_clean_phone(c['Phone'])
-        st.link_button("📲 SEND", f"https://wa.me/{target_num}?text={urllib.parse.quote(rt)}")
+        # 💡 NUCLEAR FIX
+        clean_num = omega_whatsapp_fix(c['Phone'])
+        st.link_button("📲 SEND", f"https://wa.me/{clean_num}?text={urllib.parse.quote(rt)}")
