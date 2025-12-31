@@ -11,72 +11,70 @@ import re, io, urllib.parse
 # ================= CONFIG =================
 st.set_page_config(page_title="EMPIRE.PRO", page_icon="🛡️", layout="wide")
 
-# ================= THEME PRO (MOTARD) =================
+# ================= THEME MOTARD LIGHT =================
 st.markdown("""
 <style>
 .stApp{
- background:linear-gradient(180deg,#0b1020,#0f172a);
- color:#e5e7eb;
+ background:linear-gradient(180deg,#f8fafc,#eef2ff);
+ color:#0f172a;
  font-family:Inter,sans-serif;
 }
 [data-testid="stSidebar"]{
- background:linear-gradient(180deg,#111827,#020617);
- border-right:1px solid #1f2937;
+ background:linear-gradient(180deg,#0f172a,#020617);
 }
 .sidebar-logo{
- background:linear-gradient(135deg,#2563eb,#be185d);
+ background:linear-gradient(135deg,#22c55e,#ec4899);
  padding:18px;border-radius:18px;
  text-align:center;
  color:white;font-size:22px;font-weight:900;
- box-shadow:0 15px 40px rgba(0,0,0,.6);
+ box-shadow:0 10px 30px rgba(0,0,0,.3);
 }
 .pro-header{
- background:linear-gradient(135deg,#1d4ed8,#7c3aed,#be185d);
- padding:22px;border-radius:26px;
+ background:linear-gradient(135deg,#22c55e,#38bdf8,#ec4899);
+ padding:22px;border-radius:28px;
  text-align:center;
  font-size:28px;font-weight:900;
  color:white;
  margin-bottom:30px;
- box-shadow:0 20px 50px rgba(0,0,0,.5);
+ box-shadow:0 12px 30px rgba(0,0,0,.25);
 }
 div[data-testid="stMetric"]{
- background:linear-gradient(180deg,#020617,#020617);
- border:1px solid #334155;
+ background:white;
  border-radius:22px;
  padding:22px;
- box-shadow:0 15px 40px rgba(0,0,0,.6);
+ box-shadow:0 10px 25px rgba(0,0,0,.08);
 }
 div[data-testid="stMetricValue"]{
- color:#38bdf8!important;
+ color:#16a34a!important;
  font-size:38px;font-weight:900;
 }
 div[data-testid="stMetricLabel"]{
- color:#f472b6!important;
+ color:#ec4899!important;
  font-weight:800;
 }
 div[data-baseweb="input"],div[data-baseweb="select"],.stDateInput div{
- background:#020617!important;
- border:1px solid #334155!important;
+ background:white!important;
+ border:1px solid #c7d2fe!important;
  border-radius:14px!important;
 }
-input,select,textarea{color:#e5e7eb!important;font-weight:700;}
+input,select,textarea{color:#0f172a!important;font-weight:700;}
 button{
- background:linear-gradient(135deg,#2563eb,#be185d)!important;
+ background:linear-gradient(135deg,#22c55e,#ec4899)!important;
  color:white!important;font-weight:900!important;
- border-radius:14px!important;
+ border-radius:16px!important;
 }
-thead tr{background:#1e293b!important;color:#38bdf8!important;}
-tbody tr td{background:#020617!important;color:#e5e7eb!important;}
+thead tr{background:#22c55e!important;color:white!important;}
+tbody tr td{background:white!important;color:#0f172a!important;}
 .rappel-card{
- background:linear-gradient(135deg,#020617,#111827);
- border-left:6px solid #f43f5e;
+ background:white;
+ border-left:6px solid #22c55e;
  padding:18px 22px;border-radius:18px;
- margin-bottom:12px;
- box-shadow:0 15px 40px rgba(0,0,0,.6);
+ margin-bottom:14px;
+ box-shadow:0 8px 20px rgba(0,0,0,.1);
 }
 .receipt{
- background:linear-gradient(135deg,#020617,#0f172a);
- border:1px dashed #38bdf8;
+ background:white;
+ border:2px dashed #ec4899;
  padding:26px;border-radius:22px;
  font-size:17px;font-weight:700;
 }
@@ -86,7 +84,7 @@ tbody tr td{background:#020617!important;color:#e5e7eb!important;}
 # ================= UTILS =================
 def clean_phone(p):
     if not p: return ""
-    n = re.sub(r'\D','',str(p))
+    n=re.sub(r'\D','',str(p))
     if n.startswith('0'): n='212'+n[1:]
     if len(n)==9: n='212'+n
     return n
@@ -125,8 +123,10 @@ def get_client():
     return gspread.authorize(
         Credentials.from_service_account_info(
             creds,
-            scopes=["https://www.googleapis.com/auth/spreadsheets",
-                    "https://www.googleapis.com/auth/drive"]
+            scopes=[
+             "https://www.googleapis.com/auth/spreadsheets",
+             "https://www.googleapis.com/auth/drive"
+            ]
         )
     )
 client=get_client()
@@ -134,7 +134,7 @@ client=get_client()
 # ================= LOGIN =================
 if "auth" not in st.session_state:
     lang=st.selectbox("🌍 Language",["FR","EN","AR"])
-    st.markdown("<div class='pro-header'>🛡️ EMPIRE.PRO</div>",unsafe_allow_html=True)
+    st.markdown("<div class='pro-header'>EMPIRE.PRO</div>",unsafe_allow_html=True)
     user=st.text_input("Business ID")
     pwd=st.text_input("Access Key",type="password")
     if st.button("LOGIN",use_container_width=True):
@@ -170,7 +170,8 @@ with st.sidebar:
     st.markdown("<div class='sidebar-logo'>EMPIRE.PRO</div>",unsafe_allow_html=True)
     menu=st.radio("MENU",[L["gestion"],L["analytics"],L["rappels"],L["recus"]])
     st.download_button("📥 Export Excel",export_excel(df),"clients.xlsx")
-    if st.button("Déconnexion"): st.session_state.clear(); st.rerun()
+    if st.button("Déconnexion"):
+        st.session_state.clear(); st.rerun()
 
 # ================= HEADER =================
 st.markdown(f"<div class='pro-header'>{st.session_state['biz']}</div>",unsafe_allow_html=True)
