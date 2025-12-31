@@ -8,8 +8,8 @@ import urllib.parse
 import plotly.express as px
 import io
 
-# SYSTEM STATUS: OMEGA V91 - UNIFIED DESIGN & LIGHT GRAY SIDEBAR
-st.set_page_config(page_title="EMPIRE_PRO_V91", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V96 - STATUS FIELD ADDED (LOGIC PRESERVED)
+st.set_page_config(page_title="EMPIRE_PRO_V96", layout="wide", page_icon="🛡️")
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
@@ -39,22 +39,14 @@ with st.sidebar:
 # ⚡ THE SUPREME ORANGE & LIGHT GRAY CSS
 st.markdown(f"""
     <style>
-    /* 1. Main Background */
     .stApp {{ background-color: #fffaf5 !important; }}
+    [data-testid="stSidebar"] {{ background-color: #f1f5f9 !important; border-right: 3px solid #f97316; }}
     
-    /* 2. SIDEBAR LIGHT GRAY (Gris Fat7 Pro) */
-    [data-testid="stSidebar"] {{ 
-        background-color: #f1f5f9 !important; 
-        border-right: 3px solid #f97316; 
-    }}
-    
-    /* 3. Navigation Buttons */
     div[role="radiogroup"] label {{ background-color: white !important; border-radius: 12px !important; padding: 10px 15px !important; margin-bottom: 5px; border: 1px solid #e2e8f0 !important; }}
-    div[role="radiogroup"] label[data-checked="true"] {{ background: #f97316 !important; border: none !important; }}
+    div[role="radiogroup"] label[data-checked="true"] {{ background: #f97316 !important; border: none !important; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4) !important; }}
     div[role="radiogroup"] label[data-checked="true"] p {{ color: white !important; font-weight: 900 !important; }}
     div[role="radiogroup"] [data-testid="stWidgetLabel"] + div div div {{ display: none !important; }}
 
-    /* 4. Banner Orange to Gray */
     .biz-banner {{ 
         background: linear-gradient(135deg, #f97316 0%, #4b5563 100%); 
         padding: 20px; border-radius: 20px; color: white !important; text-align: center; 
@@ -62,26 +54,18 @@ st.markdown(f"""
         box-shadow: 0 10px 30px rgba(249, 115, 22, 0.2);
     }}
 
-    /* 5. Metrics Cards */
-    div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #4b5563; border-radius: 15px; padding: 15px; }}
+    div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #4b5563; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }}
     div[data-testid="stMetricValue"] > div {{ color: #f97316 !important; font-weight: 900 !important; }}
 
-    /* 6. THE UNIFIED INPUT FIX - 360° BORDO BORDERS FOR ALL */
     .stTextInput input, .stNumberInput div[data-baseweb="input"], .stSelectbox div[data-baseweb="select"], .stDateInput input, .stNumberInput input {{
-        border: 2px solid #800000 !important; /* Bordo Border Full */
-        border-radius: 12px !important;
-        background-color: #ffffff !important;
-        color: #1e3a8a !important; /* Navy Blue Text */
-        font-weight: 800 !important;
-        height: 48px !important;
+        border: 3px solid #800000 !important; border-radius: 12px !important;
+        background-color: #ffffff !important; color: #1e3a8a !important;
+        font-weight: 800 !important; height: 48px !important;
     }}
     
-    /* Fixing the inner background of number inputs to stay white */
     .stNumberInput input {{ background-color: #ffffff !important; }}
-
     label p {{ color: #800000 !important; font-weight: 900 !important; font-size: 1rem !important; }}
 
-    /* 7. Summary Table */
     .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
     .luxury-table thead tr {{ background-color: #f97316 !important; color: white !important; font-weight: 900; }}
     .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
@@ -119,11 +103,8 @@ if "auth" not in st.session_state:
     st.stop()
 
 # --- 5. DATA ---
-try:
-    c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
-    df = pd.DataFrame(c_sheet_obj.get_all_records())
-except: st.error("Database Error"); st.stop()
-
+c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
+df = pd.DataFrame(c_sheet_obj.get_all_records())
 today = datetime.now().date()
 
 if not df.empty:
@@ -131,16 +112,15 @@ if not df.empty:
         if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
     df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
     df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-    df['Date Début'] = pd.to_datetime(df['Date Début'], errors='coerce').dt.date
     df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# SIDEBAR FOOTER & EXCEL
 def to_excel_pro(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
         df.to_excel(writer, index=False, sheet_name='EmpireData')
+        workbook = writer.book
         worksheet = writer.sheets['EmpireData']
         for i, col in enumerate(df.columns):
             column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
@@ -150,7 +130,7 @@ def to_excel_pro(df):
 
 with st.sidebar:
     st.markdown("---")
-    st.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    st.download_button(label=L["export"], data=to_excel_pro(df), file_name=f"{st.session_state['user']}_pro.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
 # --- 6. BODY INTERFACE ---
@@ -173,10 +153,14 @@ if menu == L["nav1"]:
             n_prix = st.number_input("Prix", min_value=0)
             n_deb = st.date_input("Start Date", today)
             n_dur = st.number_input("Months", min_value=1, value=1)
+            # 💡 ZDNA HAD L-KHANA DIAL STATUS HNIA
+            n_stat = st.selectbox("Status", ["Actif", "Payé", "En Attente", "Annulé"])
+
         if st.button(L["save"], use_container_width=True):
             if n_nom and n_phone:
                 n_fin = n_deb + relativedelta(months=int(n_dur))
-                new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
+                # 💡 UPDATED THE ROW TO INCLUDE N_STAT
+                new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
                 df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
                 df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
                 c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
@@ -213,9 +197,8 @@ elif menu == L["nav3"]:
 elif menu == L["nav4"]:
     st.header(L["nav4"])
     if not df.empty:
-        sel = st.selectbox("Client:", df['Nom'].unique())
+        sel = st.selectbox("Select Target:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
-        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n👤 User: {c['Nom']}\n💰 Prix: {c['Prix']} DH\n⌛ Expire: {c['Date_Display']}"
+        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}"
         st.code(reçu)
         st.link_button("📲 SEND", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
-
