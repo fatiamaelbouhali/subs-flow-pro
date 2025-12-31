@@ -7,6 +7,10 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import plotly.express as px
 import re
+import io
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
 
 # ================= CONFIG =================
 st.set_page_config(page_title="EMPIRE PRO", page_icon="🚀", layout="wide")
@@ -47,11 +51,39 @@ div[data-testid="stMetric"] {
 def clean_phone(p):
     if not p: return ""
     n = re.sub(r'\D','',str(p))
-    if n.startswith('0') and len(n)==10:
-        n='212'+n[1:]
-    if len(n)==9:
-        n='212'+n
+    if n.startswith('0') and len(n)==10: n='212'+n[1:]
+    if len(n)==9: n='212'+n
     return n
+
+def export_excel(df):
+    buffer = io.BytesIO()
+    with pd.ExcelWriter(buffer, engine="xlsxwriter") as writer:
+        df.to_excel(writer, index=False, sheet_name="Clients")
+    return buffer.getvalue()
+
+def export_pdf_receipt(client_row, biz_name):
+    buffer = io.BytesIO()
+    c = canvas.Canvas(buffer, pagesize=A4)
+    text = c.beginText(40, 800)
+
+    text.setFont("Helvetica-Bold", 16)
+    text.textLine(biz_name)
+    text.textLine("")
+
+    text.setFont("Helvetica", 12)
+    text.textLine(f"Client : {client_row['Nom']}")
+    text.textLine(f"Email  : {client_row['Email']}")
+    text.textLine(f"Service: {client_row['Service']}")
+    text.textLine(f"Prix   : {client_row['Prix']} DH")
+    text.textLine(f"Expire : {client_row['Date Fin']}")
+    text.textLine("")
+    text.textLine("Merci pour votre confiance 🙏")
+
+    c.drawText(text)
+    c.showPage()
+    c.save()
+    buffer.seek(0)
+    return buffer
 
 # ================= GOOGLE SHEETS =================
 def get_client():
@@ -112,6 +144,7 @@ if not df.empty:
 with st.sidebar:
     st.markdown('<div class="sidebar-logo">EMPIRE.PRO</div>', unsafe_allow_html=True)
     menu = st.radio("MENU",["GESTION","ANALYTICS","RAPPELS","REÇUS"],label_visibility="collapsed")
+    st.download_button("📥 Export Excel", export_excel(df), "clients.xlsx")
     if st.button("Logout"):
         st.session_state.clear()
         st.rerun()
@@ -141,7 +174,6 @@ if menu=="GESTION":
 
     if st.button("SAVE",use_container_width=True):
         fin=start+relativedelta(months=int(months))
-
         new_row = {
             "Nom": nom,
             "Phone": clean_phone(phone),
@@ -153,7 +185,6 @@ if menu=="GESTION":
             "Date Fin": fin.strftime("%Y-%m-%d"),
             "Status": status
         }
-
         df2 = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         sheet.clear()
         sheet.update([df2.columns.values.tolist()] + df2.astype(str).values.tolist())
@@ -168,23 +199,47 @@ elif menu=="ANALYTICS":
     c1.metric("Revenue",f"{df['Prix'].sum()} DH")
     c2.metric("Actifs",len(df[df["Status"]=="Actif"]))
     c3.metric("Alerts",len(df[df["Days"]<=3]))
+
+    resume = df.groupby("Service").agg(
+        Clients=("Nom","count"),
+        CA=("Prix","sum")
+    ).reset_index()
+
+    st.markdown("### 📊 Résumé par service")
+    st.dataframe(resume, use_container_width=True)
+
     st.plotly_chart(px.bar(df,x="Service",y="Prix",color="Status"),use_container_width=True)
 
 # ================= RAPPELS =================
 elif menu=="RAPPELS":
     urg=df[df["Days"]<=3]
-    for _,r in urg.iterrows():
-        st.warning(f"{r['Nom']} | {r['Days']} jours")
+    if urg.empty:
+        st.success("Aucun rappel")
+    else:
+        for _,r in urg.iterrows():
+            msg=f"Salam {r['Nom']} 👋\nL'abonnement {r['Service']} ghadi يسالي f {r['Date Fin']}.\nMerci 🙏"
+            link=f"https://wa.me/{clean_phone(r['Phone'])}?text={msg.replace(' ','%20')}"
+            c1,c2=st.columns([3,1])
+            c1.warning(f"{r['Nom']} | {r['Days']} jours")
+            c2.link_button("📲 WhatsApp",link)
 
 # ================= REÇUS =================
 elif menu=="REÇUS":
     sel=st.selectbox("Client",df["Nom"].unique())
     r=df[df["Nom"]==sel].iloc[0]
-    st.code(f"""
+
+    receipt=f"""
 REÇU
 Client: {r['Nom']}
 Email: {r['Email']}
 Service: {r['Service']}
 Prix: {r['Prix']} DH
 Expire: {r['Date Fin']}
-""")
+"""
+    st.code(receipt)
+
+    pdf = export_pdf_receipt(r, st.session_state["biz"])
+    st.download_button("📄 Télécharger PDF", pdf, "recu.pdf")
+
+    wa_link=f"https://wa.me/{clean_phone(r['Phone'])}?text={receipt.replace(' ','%20')}"
+    st.link_button("📲 Envoyer WhatsApp", wa_link)
