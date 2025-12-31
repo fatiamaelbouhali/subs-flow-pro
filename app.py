@@ -7,9 +7,19 @@ from dateutil.relativedelta import relativedelta
 import urllib.parse
 import plotly.express as px
 import io
+import re
 
-# SYSTEM STATUS: OMEGA V99 - SUPREME EMPIRE GOD-MODE (LIGHT GRAY SIDEBAR & FULL LOGIC)
-st.set_page_config(page_title="EMPIRE_PRO_V99", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V100 - THE FINAL STRIKE (WHATSAPP FIX & LOGO REBORN)
+st.set_page_config(page_title="EMPIRE_PRO_V100", layout="wide", page_icon="🛡️")
+
+# 💡 FUNCTION BACH T-NE99I L-NEMRA (FIX WHATSAPP ERROR)
+def clean_phone(phone_str):
+    num = re.sub(r'\D', '', str(phone_str)) # 7yed ga3 l-7ourouf o l-khwa
+    if num.startswith('0'):
+        num = '212' + num[1:] # Force Morocco Code
+    if not num.startswith('212') and len(num) == 9:
+        num = '212' + num
+    return num
 
 # --- 1. LANGUAGE DICTIONARY ---
 LANGS = {
@@ -32,23 +42,18 @@ LANGS = {
 # --- 2. THEMES & SIDEBAR CSS ---
 st.markdown("""
     <style>
-    /* Global Background */
     .stApp { background-color: #fff5f7 !important; }
+    [data-testid="stSidebar"] { background-color: #f1f5f9 !important; border-right: 2px solid #e2e8f0; }
     
-    /* 💡 SIDEBAR LIGHT GRAY (Gris Fat7) */
-    [data-testid="stSidebar"] { 
-        background-color: #f1f5f9 !important; 
-        border-right: 2px solid #e2e8f0; 
-    }
-    
-    /* Sidebar Logo Area */
+    /* 💡 LOGO EMPIRE BOX - ORANGE PRO (Mustard) */
     .sidebar-logo {
-        background-color: #334155; 
-        padding: 20px; border-radius: 15px; 
-        text-align: center; margin-bottom: 20px;
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+        padding: 25px; border-radius: 15px; 
+        text-align: center; margin-bottom: 25px;
+        color: white !important; font-size: 24px; font-weight: 900;
+        box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
     }
 
-    /* Navigation Buttons - React Style with Teal */
     div[role="radiogroup"] label {
         background-color: white !important; border-radius: 12px !important; 
         padding: 12px 20px !important; transition: 0.3s !important; 
@@ -61,19 +66,16 @@ st.markdown("""
     div[role="radiogroup"] label[data-checked="true"] p { color: white !important; font-weight: 900 !important; }
     div[role="radiogroup"] [data-testid="stWidgetLabel"] + div div div { display: none !important; }
 
-    /* 360° BORDO BORDERS FOR INPUTS */
     div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div {
         border: 3px solid #800000 !important; border-radius: 14px !important;
         background-color: #ffffff !important; padding: 2px !important;
     }
     input, select, textarea, div[role="button"] { color: #1e3a8a !important; font-weight: 800 !important; }
 
-    /* Summary Table Style */
     .luxury-table { width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }
     .luxury-table thead tr { background-color: #f97316 !important; color: white !important; font-weight: 900; }
     .luxury-table td { padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }
 
-    /* Receipt Card */
     .receipt-card {
         background-color: #1e3a8a !important; padding: 30px !important;
         border-radius: 2.5rem !important; color: #ffffff !important;
@@ -82,7 +84,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. GOOGLE CONNECTION ---
+# --- 3. CONNECTION ---
 MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
 def get_client():
     creds_dict = st.secrets["connections"]["gsheets"]
@@ -109,7 +111,7 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 5. APP DATA ---
+# --- 5. DATA ---
 L = LANGS[st.session_state["lang"]]
 c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
 df = pd.DataFrame(c_sheet_obj.get_all_records())
@@ -184,9 +186,11 @@ elif menu == L["nav3"]:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            wa = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
+            # 💡 FIX: Clean phone number before sending
+            cleaned_num = clean_phone(r['Phone'])
+            wa = f"https://wa.me/{cleaned_num}?text={urllib.parse.quote(L['msg'])}"
             cr.link_button("📲 TIRER", wa)
-    else: st.success(L["propre"])
+    else: st.success("Empire is Safe!")
 
 # PAGE REÇUS
 elif menu == L["nav4"]:
@@ -195,5 +199,7 @@ elif menu == L["nav4"]:
         sel = st.selectbox("Client:", df['Nom'].unique())
         c = df[df['Nom'] == sel].iloc[0]
         receipt_text = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
-        st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold;">{receipt_text}</pre></div>', unsafe_allow_html=True)
-        st.link_button("📲 ENVOYER VIA WHATSAPP", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(receipt_text)}")
+        st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{receipt_text}</pre></div>', unsafe_allow_html=True)
+        # 💡 FIX: Clean phone number before sending
+        cleaned_num = clean_phone(c['Phone'])
+        st.link_button("📲 ENVOYER VIA WHATSAPP", f"https://wa.me/{cleaned_num}?text={urllib.parse.quote(receipt_text)}")
