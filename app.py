@@ -9,18 +9,21 @@ import plotly.express as px
 import io
 import re
 
-# SYSTEM STATUS: OMEGA V101 - WHATSAPP HARD-FIX & EXCEL PRO ENGINE
-st.set_page_config(page_title="EMPIRE_PRO_V101", layout="wide", page_icon="🛡️")
+# SYSTEM STATUS: OMEGA V102 - WHATSAPP NUCLEAR FIX & EXCEL STABILITY
+st.set_page_config(page_title="EMPIRE_PRO_V102", layout="wide", page_icon="🛡️")
 
-# 💡 OMEGA DEEP CLEANER: Force pure numbers for WhatsApp
-def force_clean_phone(phone_str):
+# 💡 THE NUCLEAR CLEANER: Force absolute WhatsApp format
+def absolute_clean_phone(phone_str):
     if not phone_str: return ""
-    # 7yed ga3 l-khwa o l-7ourouf, khlli ghi l-ar9am
+    # 1. 7eyed ga3 l-khwa o l- برموز (+, -, spaces)
     num = re.sub(r'\D', '', str(phone_str))
-    # Fix l-meghrib: force 212 f l-bedya
-    if num.startswith('0'):
+    # 2. Ila kant k-t-bda b 00 force 212
+    if num.startswith('00'): num = num[2:]
+    # 3. Ila bdat b 0 (10 digits) force 212
+    if num.startswith('0') and len(num) == 10:
         num = '212' + num[1:]
-    elif not num.startswith('212') and len(num) >= 9:
+    # 4. Ila na9ssaha 212 (9 digits) force it
+    if len(num) == 9:
         num = '212' + num
     return num
 
@@ -42,7 +45,7 @@ LANGS = {
     }
 }
 
-# --- 2. CSS STYLING (IMAGE 2 & 3 STYLE) ---
+# --- 2. THEMES & SIDEBAR CSS ---
 st.markdown("""
     <style>
     .stApp { background-color: #fff5f7 !important; }
@@ -61,7 +64,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. CONNECTION & AUTH ---
+# --- 3. CONNECTION ---
 MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
 def get_client():
     creds_dict = st.secrets["connections"]["gsheets"]
@@ -69,6 +72,7 @@ def get_client():
 
 client = get_client()
 
+# --- 4. LOGIN ---
 if "auth" not in st.session_state:
     st.markdown('<div style="background: linear-gradient(135deg, #f97316 0%, #1e3a8a 100%); padding: 30px; border-radius: 20px; color: white; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px;">🛡️ EMPIRE GATEWAY</div>', unsafe_allow_html=True)
     _, col_log, _ = st.columns([1, 2, 1])
@@ -86,7 +90,7 @@ if "auth" not in st.session_state:
                 st.rerun()
     st.stop()
 
-# --- 4. APP DATA ---
+# --- 5. APP DATA ---
 L = LANGS[st.session_state["lang"]]
 c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
 df = pd.DataFrame(c_sheet_obj.get_all_records())
@@ -101,16 +105,14 @@ if not df.empty:
     df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
     df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
 
-# --- 5. EXCEL EXPORT (FIXED PRO ENGINE) ---
-def to_excel_pro(df):
+# EXCEL LOGIC PRO (FIXED)
+def to_excel_pro_v2(df):
     out = io.BytesIO()
     with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
-        # Sort for export
         df.to_excel(writer, index=False, sheet_name='EmpireData')
         workbook = writer.book
         worksheet = writer.sheets['EmpireData']
-        # Styling headers and auto-width
-        header_format = workbook.add_format({'bold': True, 'bg_color': '#f97316', 'font_color': 'white'})
+        header_format = workbook.add_format({'bold': True, 'bg_color': '#f97316', 'font_color': 'white', 'border': 1})
         for i, col in enumerate(df.columns):
             worksheet.write(0, i, col, header_format)
             column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
@@ -118,15 +120,15 @@ def to_excel_pro(df):
         writer.close()
     return out.getvalue()
 
-# --- 6. SIDEBAR ---
+# SIDEBAR NAV
 with st.sidebar:
     st.markdown('<div class="sidebar-logo">EMPIRE<span style="color: #2dd4bf;">.</span></div>', unsafe_allow_html=True)
     menu = st.radio("NAV", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
     st.markdown("---")
-    st.download_button(label=L["export"], data=to_excel_pro(df), file_name=f"{st.session_state['user']}_export.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    st.download_button(label=L["export"], data=to_excel_pro_v2(df), file_name=f"{st.session_state['user']}_export.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
-# --- 7. MAIN BODY ---
+# --- 6. BODY ---
 st.markdown(f'<div style="background: linear-gradient(135deg, #f97316 0%, #ec4899 100%); padding: 20px; border-radius: 15px; color: white; text-align: center; font-size: 30px; font-weight: 900; margin-bottom: 25px;">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 if menu == L["nav1"]:
@@ -144,13 +146,15 @@ if menu == L["nav1"]:
         n_prix = st.number_input("Prix (DH)", min_value=0)
         n_deb = st.date_input("Start Date", today)
         n_dur = st.number_input("Months", min_value=1, value=1)
+
     if st.button(L["save"], use_container_width=True):
         if n_nom and n_phone:
             n_fin = n_deb + relativedelta(months=int(n_dur))
             new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), n_stat]
-            df_new = pd.concat([df.drop(columns=['Days', 'Date_Display'], errors='ignore'), pd.DataFrame([dict(zip(df.columns, new_r))])], ignore_index=True)
+            df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore')
+            df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
             c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-            st.success("PROTOCOL SYNCED!"); st.rerun()
+            st.success("✅ PROTOCOL SYNCED!"); st.rerun()
     st.markdown("---")
     st.data_editor(df, use_container_width=True, num_rows="dynamic")
 
@@ -171,8 +175,8 @@ elif menu == L["nav3"]:
         for _, r in urgent.iterrows():
             cl, cr = st.columns([3, 1])
             cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            # 💡 FINAL WHATSAPP HARD-FIX
-            target_num = force_clean_phone(r['Phone'])
+            # 💡 NUCLEAR WHATSAPP FIX
+            target_num = absolute_clean_phone(r['Phone'])
             wa_url = f"https://wa.me/{target_num}?text={urllib.parse.quote(L['msg'])}"
             cr.link_button("📲 TIRER", wa_url)
     else: st.success("Safe!")
@@ -183,6 +187,6 @@ elif menu == L["nav4"]:
         c = df[df['Nom'] == sel].iloc[0]
         rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*"
         st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
-        # 💡 FINAL WHATSAPP HARD-FIX FOR RECEIPTS
-        target_num = force_clean_phone(c['Phone'])
+        # 💡 NUCLEAR WHATSAPP FIX FOR RECEIPTS
+        target_num = absolute_clean_phone(c['Phone'])
         st.link_button("📲 SEND", f"https://wa.me/{target_num}?text={urllib.parse.quote(rt)}")
