@@ -47,8 +47,10 @@ div[data-testid="stMetric"] {
 def clean_phone(p):
     if not p: return ""
     n = re.sub(r'\D','',str(p))
-    if n.startswith('0') and len(n)==10: n='212'+n[1:]
-    if len(n)==9: n='212'+n
+    if n.startswith('0') and len(n)==10:
+        n='212'+n[1:]
+    if len(n)==9:
+        n='212'+n
     return n
 
 # ================= GOOGLE SHEETS =================
@@ -129,7 +131,8 @@ if menu=="GESTION":
     with c1:
         nom=st.text_input("Nom")
         phone=st.text_input("WhatsApp")
-        status=st.selectbox("Status",["Actif","Expiré"])
+        email=st.text_input("Email")
+        status=st.selectbox("Status",["Actif","Payé","En Attente","Annulé","Expiré"])
     with c2:
         service=st.text_input("Service")
         prix=st.number_input("Prix (DH)",0)
@@ -142,6 +145,7 @@ if menu=="GESTION":
         new_row = {
             "Nom": nom,
             "Phone": clean_phone(phone),
+            "Email": email,
             "Service": service,
             "Prix": prix,
             "Date Debut": start.strftime("%Y-%m-%d"),
@@ -153,7 +157,7 @@ if menu=="GESTION":
         df2 = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
         sheet.clear()
         sheet.update([df2.columns.values.tolist()] + df2.astype(str).values.tolist())
-        st.success("Saved successfully")
+        st.success("Client tzed ✔️")
         st.rerun()
 
     st.dataframe(df,use_container_width=True)
@@ -179,6 +183,7 @@ elif menu=="REÇUS":
     st.code(f"""
 REÇU
 Client: {r['Nom']}
+Email: {r['Email']}
 Service: {r['Service']}
 Prix: {r['Prix']} DH
 Expire: {r['Date Fin']}
