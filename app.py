@@ -205,3 +205,4 @@ elif menu == L["nav4"]:
         reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*"
         st.code(reçu)
         st.link_button("📲 SEND", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
+
