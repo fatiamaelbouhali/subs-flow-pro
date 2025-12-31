@@ -1,223 +1,175 @@
-import streamlit as st
-import pandas as pd
-import gspread
-from google.oauth2.service_account import Credentials
-from datetime import datetime
-from dateutil.relativedelta import relativedelta
-import urllib.parse
-import plotly.express as px
-import io
 
-# SYSTEM STATUS: OMEGA V84 - THE SUPREME JEWEL (ZERO ERRORS, PERFECT BORDERS)
-st.set_page_config(page_title="EMPIRE_PRO_V84", layout="wide", page_icon="🛡️")
+import React, { useState } from 'react';
+import { Plus, ChevronDown, CheckCircle2 } from 'lucide-react';
 
-# --- 1. LANGUAGE DICTIONARY (FIXED KEYS) ---
-LANGS = {
-    "FR": {
-        "ident": "Identifiant Business:", "pass": "Mot de passe:", "btn_log": "Se Connecter",
-        "nav1": "📊 ANALYTICS", "nav2": "👥 GESTION", "nav3": "🔔 RAPPELS", "nav4": "📄 REÇUS",
-        "rev": "REVENUE TOTAL", "act": "ACTIFS", "alrt": "ALERTES", "add_title": "➕ AJOUTER UN NOUVEAU CLIENT",
-        "save": "🚀 Enregistrer au Cloud", "export": "📥 Télécharger Excel", "msg": "Bonjour, votre abonnement expire bientôt.",
-        "sum_title": "📋 Résumé Business par Service", "logout": "Déconnexion", "propre": "Tout est propre."
-    },
-    "AR": {
-        "ident": "اسم المستخدم:", "pass": "كلمة السر:", "btn_log": "تسجيل الدخول",
-        "nav1": "📊 الإحصائيات", "nav2": "👥 إدارة الزبناء", "nav3": "🔔 التنبيهات", "nav4": "📄 الوصولات",
-        "rev": "إجمالي الأرباح", "act": "المشتركون", "alrt": "تنبيهات", "add_title": "➕ إضافة زبون جديد",
-        "save": "🚀 حفظ في السحابة", "export": "📥 تحميل إكسيل", "msg": "السلام عليكم، اشتراككم سينتهي قريبا.",
-        "sum_title": "📋 ملخص الخدمات", "logout": "خروج", "propre": "كل شيء منظم."
-    }
-}
+const GestionView: React.FC = () => {
+  const [formData, setFormData] = useState({
+    nom: '',
+    email: '',
+    prix: 0,
+    whatsapp: '',
+    service: 'Netflix',
+    startDate: new Date().toISOString().split('T')[0],
+    months: 1
+  });
 
-# --- 2. SIDEBAR SETTINGS ---
-with st.sidebar:
-    st.markdown("### ⚙️ Config")
-    sel_lang = st.selectbox("🌍 Language", ["FR", "AR"])
-    L = LANGS[sel_lang]
-    st.markdown("---")
-    st.markdown("### 🚀 Menu")
-    menu = st.radio("Navigation", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'prix' || name === 'months' ? Number(value) : value
+    }));
+  };
 
-# ⚡ THE NUCLEAR CSS - 360° BORDERS & CENTERED FORM
-st.markdown(f"""
-    <style>
-    /* Background Rose Barad */
-    .stApp {{ background-color: #fff5f7 !important; }}
-    
-    /* 1. THE ULTIMATE INPUT FIX - FULL BORDERS (BORDO & BLUE) */
-    div[data-baseweb="input"], div[data-baseweb="select"], div[data-baseweb="base-input"], .stDateInput div {{
-        border: 3px solid #800000 !important; /* Bordo Border */
-        border-radius: 14px !important;
-        background-color: #ffffff !important;
-        padding: 4px !important;
-        box-shadow: 4px 4px 10px rgba(236, 72, 153, 0.1) !important; /* Soft Rose Shadow */
-    }}
-    
-    /* Input Text Style (Royal Blue) */
-    input, select, textarea, div[role="button"] {{
-        border: none !important;
-        background-color: transparent !important;
-        color: #1e3a8a !important; 
-        font-weight: 800 !important;
-        box-shadow: none !important;
-    }}
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert('Enregistré avec succès !');
+  };
 
-    /* Labels - Bordo Bold */
-    label p {{ color: #800000 !important; font-weight: 900 !important; font-size: 1.1rem !important; }}
+  return (
+    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-700">
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
+            <Plus className="text-indigo-600 w-6 h-6" />
+          </div>
+          <h1 className="text-3xl font-bold text-slate-800 tracking-tight">Gestion des Clients</h1>
+        </div>
+        <p className="text-slate-500 text-sm font-medium ml-13">Ajoutez un nouvel abonné à votre base de données.</p>
+      </div>
 
-    /* 2. Business Banner */
-    .biz-banner {{ 
-        background: linear-gradient(135deg, #f59e0b 0%, #1e3a8a 100%); 
-        padding: 20px; border-radius: 20px; color: white !important; 
-        text-align: center; font-size: 32px; font-weight: 900; 
-        margin-bottom: 25px; border: 4px solid #ffffff; 
-    }}
+      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
+          {/* Nom */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Nom & Prénom</label>
+            <input
+              type="text"
+              name="nom"
+              value={formData.nom}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
+              placeholder="Nom du client"
+            />
+          </div>
 
-    /* 3. Metrics Box */
-    div[data-testid="stMetric"] {{ background: white !important; border: 2px solid #1e3a8a; border-radius: 15px; padding: 15px; }}
-    div[data-testid="stMetricValue"] > div {{ color: #db2777 !important; font-weight: 900 !important; }}
+          {/* Email */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Email (Facultatif)</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
+              placeholder="client@domaine.com"
+            />
+          </div>
 
-    /* 4. Buttons */
-    .stButton button {{
-        background: linear-gradient(90deg, #f59e0b 0%, #1e3a8a 100%) !important;
-        color: white !important; border-radius: 12px !important; border: 2px solid #ffffff !important;
-        font-weight: 900 !important; padding: 12px 40px !important;
-    }}
+          {/* WhatsApp */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">WhatsApp</label>
+            <input
+              type="text"
+              name="whatsapp"
+              value={formData.whatsapp}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none text-slate-700 font-medium"
+              placeholder="+212 ..."
+            />
+          </div>
 
-    /* Luxury Table Summary */
-    .luxury-table {{ width: 100%; border-collapse: collapse; border-radius: 15px; overflow: hidden; margin: 20px 0; }}
-    .luxury-table thead tr {{ background-color: #f59e0b !important; color: white !important; font-weight: 900; }}
-    .luxury-table td {{ padding: 15px; text-align: center; background-color: white; color: #1e3a8a; font-weight: bold; border-bottom: 1px solid #ddd; }}
-    </style>
-    """, unsafe_allow_html=True)
+          {/* Service */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Service</label>
+            <div className="relative">
+              <select
+                name="service"
+                value={formData.service}
+                onChange={handleInputChange}
+                className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-50 transition-all outline-none appearance-none text-slate-700 font-bold"
+              >
+                <option>Netflix</option>
+                <option>IPTV</option>
+                <option>ChatGPT</option>
+                <option>Udemy</option>
+                <option>Spotify</option>
+              </select>
+              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
+            </div>
+          </div>
 
-# --- 3. CONNECTION ---
-MASTER_ID = "1j8FOrpIcWfBf9UJcBRP1BpY4JJiCx0cUTEJ53qHuuWE"
-def get_gspread_client():
-    creds_dict = st.secrets["connections"]["gsheets"]
-    return gspread.authorize(Credentials.from_service_account_info(creds_dict, scopes=['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']))
+          {/* Prix */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Tarif (DH)</label>
+            <div className="flex items-center group">
+              <button 
+                type="button" 
+                onClick={() => setFormData(p => ({...p, prix: Math.max(0, p.prix - 10)}))}
+                className="w-14 h-14 flex items-center justify-center border border-r-0 border-slate-200 rounded-l-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
+              >-</button>
+              <input
+                type="number"
+                name="prix"
+                value={formData.prix}
+                onChange={handleInputChange}
+                className="flex-1 h-14 border border-slate-200 text-center font-bold text-xl outline-none text-slate-800 bg-white"
+              />
+              <button 
+                type="button" 
+                onClick={() => setFormData(p => ({...p, prix: p.prix + 10}))}
+                className="w-14 h-14 flex items-center justify-center border border-l-0 border-slate-200 rounded-r-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
+              >+</button>
+            </div>
+          </div>
 
-client = get_gspread_client()
+          {/* Start Date */}
+          <div className="space-y-3">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Date de début</label>
+            <input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleInputChange}
+              className="w-full p-4 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:border-indigo-400 outline-none font-semibold text-slate-700"
+            />
+          </div>
 
-# --- 4. LOGIN SYSTEM ---
-if "auth" not in st.session_state:
-    st.markdown(f'<div class="biz-banner">🛡️ EMPIRE ACCESS GATEWAY</div>', unsafe_allow_html=True)
-    _, col_log, _ = st.columns([1, 2, 1])
-    with col_log:
-        u_in = st.text_input(L["ident"])
-        p_in = st.text_input(L["pass"], type="password")
-        if st.button(L["btn_log"]):
-            try:
-                m_sheet = client.open("Master_Admin").sheet1
-                m_df = pd.DataFrame(m_sheet.get_all_records())
-                match = m_df[(m_df['User'].astype(str).str.strip() == str(u_in).strip()) & (m_df['Password'].astype(str).str.strip() == str(p_in).strip())]
-                if not match.empty:
-                    user_row = match.iloc[0]
-                    st.session_state.update({"auth": True, "user": u_in, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
-                    st.rerun()
-                else: st.error("❌ Identifiants Incorrects.")
-            except Exception as e: st.error(f"Error Master: {e}")
-    st.stop()
+          {/* Months */}
+          <div className="space-y-3 md:col-start-1">
+            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest">Durée (Mois)</label>
+            <div className="flex items-center">
+              <button 
+                type="button" 
+                onClick={() => setFormData(p => ({...p, months: Math.max(1, p.months - 1)}))}
+                className="w-14 h-14 flex items-center justify-center border border-r-0 border-slate-200 rounded-l-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
+              >-</button>
+              <input
+                type="number"
+                name="months"
+                value={formData.months}
+                onChange={handleInputChange}
+                className="flex-1 h-14 border border-slate-200 text-center font-bold text-xl outline-none text-slate-800 bg-white"
+              />
+              <button 
+                type="button" 
+                onClick={() => setFormData(p => ({...p, months: p.months + 1}))}
+                className="w-14 h-14 flex items-center justify-center border border-l-0 border-slate-200 rounded-r-xl hover:bg-white hover:text-indigo-600 transition-colors font-bold text-xl bg-slate-50 text-slate-500"
+              >+</button>
+            </div>
+          </div>
+        </div>
 
-# --- 5. DATA ---
-try:
-    c_sheet_obj = client.open(st.session_state["sheet_name"]).sheet1
-    df = pd.DataFrame(c_sheet_obj.get_all_records())
-except: st.error("Database Error"); st.stop()
+        <button
+          type="submit"
+          className="w-full py-5 bg-indigo-600 text-white rounded-[1.5rem] font-bold text-lg shadow-xl shadow-indigo-100 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-3 active:scale-95"
+        >
+          <CheckCircle2 className="w-6 h-6" />
+          Sauvegarder les données
+        </button>
+      </form>
+    </div>
+  );
+};
 
-today = datetime.now().date()
-if not df.empty:
-    for c in ['Nom', 'Phone', 'Email', 'Service', 'Status']:
-        if c in df.columns: df[c] = df[c].astype(str).replace('nan', '')
-    df['Prix'] = pd.to_numeric(df['Prix'], errors='coerce').fillna(0)
-    df['Date Fin'] = pd.to_datetime(df['Date Fin'], errors='coerce').dt.date
-    df['Days'] = df['Date Fin'].apply(lambda x: (x - today).days if pd.notnull(x) else 0)
-    df['Date_Display'] = pd.to_datetime(df['Date Fin']).dt.strftime('%Y-%m-%d').fillna("N/A")
-    df.loc[(df['Days'] <= 0) & (df['Status'] == 'Actif'), 'Status'] = 'Expiré'
-
-# EXCEL LOGIC
-def to_excel_pro(df):
-    out = io.BytesIO()
-    with pd.ExcelWriter(out, engine='xlsxwriter') as writer:
-        df.to_excel(writer, index=False, sheet_name='EmpireData')
-        worksheet = writer.sheets['EmpireData']
-        for i, col in enumerate(df.columns):
-            column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
-            worksheet.set_column(i, i, column_len)
-        writer.close()
-    return out.getvalue()
-
-# SIDEBAR FOOTER
-with st.sidebar:
-    st.markdown("---")
-    st.download_button(L["export"], to_excel_pro(df), f"{st.session_state['user']}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-    if st.button(L["logout"]): st.session_state.clear(); st.rerun()
-
-# --- 6. BODY INTERFACE ---
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
-
-# 📊 ANALYTICS
-if menu == L["nav1"]:
-    c1, c2, c3 = st.columns(3)
-    c1.metric(L["rev"], f"{df['Prix'].sum()} DH")
-    c2.metric(L["act"], len(df[df['Status'] == 'Actif']))
-    c3.metric(L["alrt"], len(df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]))
-    st.markdown(f"### {L['sum_title']}")
-    if not df.empty:
-        sum_df = df.groupby('Service').agg({'Nom': 'count', 'Prix': 'sum'}).reset_index()
-        sum_df.columns = ['Service', 'Clients', 'CA Total']
-        st.write(sum_df.to_html(classes='luxury-table', index=False, border=0), unsafe_allow_html=True)
-        st.plotly_chart(px.bar(df, x='Service', y='Prix', color='Status', template="simple_white"), use_container_width=True)
-
-# 👥 GESTION (CENTERED FORM)
-elif menu == L["nav2"]:
-    st.markdown(f"<h2 style='text-align: center; color: #800000;'>{L['add_title']}</h2>", unsafe_allow_html=True)
-    _, col_form, _ = st.columns([1, 6, 1])
-    with col_form:
-        ca, cb, cc = st.columns(3)
-        with ca:
-            n_nom = st.text_input("Nom / الإسم")
-            n_phone = st.text_input("WhatsApp")
-        with cb:
-            n_email = st.text_input("Email")
-            s_choice = st.selectbox("Service", ["Netflix", "ChatGPT", "Canva", "Spotify", "IPTV", "Disney+", "Autre"])
-            final_s = st.text_input("Service Name") if s_choice == "Autre" else s_choice
-        with cc:
-            n_prix = st.number_input("Prix", min_value=0)
-            n_deb = st.date_input("Start Date", today)
-            n_dur = st.number_input("Months", min_value=1, value=1)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button(L["save"], use_container_width=True):
-            if n_nom and n_phone:
-                n_fin = n_deb + relativedelta(months=int(n_dur))
-                new_r = [n_nom, str(n_phone), n_email, final_s, n_prix, str(n_deb), n_dur, str(n_fin), "Actif"]
-                df_clean = df.drop(columns=['Days', 'Date_Display'], errors='ignore') if not df.empty else pd.DataFrame(columns=["Nom", "Phone", "Email", "Service", "Prix", "Date Début", "Durée (Mois)", "Date Fin", "Status"])
-                df_new = pd.concat([df_clean, pd.DataFrame([dict(zip(df_clean.columns, new_r))])], ignore_index=True)
-                c_sheet_obj.clear(); c_sheet_obj.update([df_new.columns.values.tolist()] + df_new.astype(str).values.tolist())
-                st.success("✅ Synchronisé !"); st.rerun()
-
-    st.markdown("---")
-    st.data_editor(df, use_container_width=True, num_rows="dynamic")
-
-# 🔔 RAPPELS
-elif menu == L["nav3"]:
-    st.header(L["nav3"])
-    urgent = df[(df['Days'] <= 3) & (df['Status'] == 'Actif')]
-    if not urgent.empty:
-        for _, r in urgent.iterrows():
-            cl, cr = st.columns([3, 1])
-            cl.warning(f"👤 {r['Nom']} | ⏳ {r['Days']} j")
-            wa_url = f"https://wa.me/{r['Phone']}?text={urllib.parse.quote(L['msg'])}"
-            cr.link_button("📲 WhatsApp", wa_url)
-    else: st.info(L["propre"])
-
-# 📄 REÇUS
-elif menu == L["nav4"]:
-    st.header(L["nav4"])
-    if not df.empty:
-        sel = st.selectbox("Client:", df['Nom'].unique())
-        c = df[df['Nom'] == sel].iloc[0]
-        reçu = f"✅ *REÇU - {st.session_state['biz_name']}*\n━━━━━━━━━━━━━━━━━━\n👤 Client: *{c['Nom']}*\n📺 Service: *{c['Service']}*\n💰 Prix: *{c['Prix']} DH*\n⌛ Expire: *{c['Date_Display']}*\n━━━━━━━━━━━━━━━━━━"
-        st.code(reçu)
-        st.link_button("📲 Envoyer via WhatsApp", f"https://wa.me/{c['Phone']}?text={urllib.parse.quote(reçu)}")
+export default GestionView;
