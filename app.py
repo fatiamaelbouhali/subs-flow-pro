@@ -169,7 +169,7 @@ with st.sidebar:
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
 # --- 6. BODY ---
-st.markdown(f'<div class="biz-banner"> {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner"> {st.session_state["biz_name"]} </div>', unsafe_allow_html=True)
 
 # PAGE ANALYTICS (RESTORED LARGE TABLE)
 if menu == L["nav1"]:
@@ -235,4 +235,5 @@ elif menu == L["nav4"]:
         rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
         st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
         st.link_button("📲 SEND", f"https://wa.me/{clean_num(c['Phone'])}?text={urllib.parse.quote(rt)}")
+
 
