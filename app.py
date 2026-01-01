@@ -10,7 +10,7 @@ import io
 import re
 
 # SYSTEM STATUS: OMEGA V120 - FINAL SUPREME ALIGNMENT (LARGE SUMMARY & SERVICE IN RAPPELS)
-st.set_page_config(page_title="EMPIRE_PRO_V120", layout="wide", page_icon="🛡️")
+st.set_page_config(page_title="EMPIRE_PRO", layout="wide", page_icon="🛡️")
 
 today = datetime.now().date()
 
@@ -162,14 +162,14 @@ def to_excel_pro(df):
     return out.getvalue()
 
 with st.sidebar:
-    st.markdown(f"👑 **{st.session_state['user'].upper()}**")
+    st.markdown(f"👤 **{st.session_state['user'].upper()}**")
     menu = st.radio("NAV", [L["nav1"], L["nav2"], L["nav3"], L["nav4"]], label_visibility="collapsed")
     st.markdown("---")
     st.download_button(label=L["export"], data=to_excel_pro(df), file_name=f"{st.session_state['user']}_pro.xlsx", mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     if st.button(L["logout"]): st.session_state.clear(); st.rerun()
 
 # --- 6. BODY ---
-st.markdown(f'<div class="biz-banner">👤 {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
+st.markdown(f'<div class="biz-banner"> {st.session_state["biz_name"]} 🚀</div>', unsafe_allow_html=True)
 
 # PAGE ANALYTICS (RESTORED LARGE TABLE)
 if menu == L["nav1"]:
@@ -235,3 +235,4 @@ elif menu == L["nav4"]:
         rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
         st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
         st.link_button("📲 SEND", f"https://wa.me/{clean_num(c['Phone'])}?text={urllib.parse.quote(rt)}")
+
