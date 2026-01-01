@@ -109,7 +109,7 @@ if "auth" not in st.session_state:
                     if str(user_row['Status']).strip() == 'Active':
                         st.session_state.update({"auth": True, "user": u_in, "lang": sel_l_login, "biz_name": str(user_row['Business_Name']), "sheet_name": str(user_row['Sheet_Name'])})
                         st.rerun()
-                    else: st.error("🚫 Access Suspended,veuillez contacter Fatima ELBOUHALI")
+                    else: st.error("🚫 Access Suspended.veuillez contacter Fatima ELBOUHALI")
                 else: st.error("❌ Identifiants Incorrects.")
             except Exception as e: st.error(f"Error Master: {e}")
     st.stop()
@@ -235,6 +235,7 @@ elif menu == L["nav4"]:
         rt = f"✅ *REÇU - {st.session_state['biz_name'].upper()}*\n👤 Client: *{c['Nom']}*\n💰 Prix: *{c['Prix']} DH*\n🛠️ Service: *{c['Service']}*\n⌛ Expire: *{c['Date_Display']}*\n🙏 Merci !"
         st.markdown(f'<div class="receipt-card"><pre style="color:white; font-size:18px; font-weight:bold; white-space: pre-wrap;">{rt}</pre></div>', unsafe_allow_html=True)
         st.link_button("📲 SEND", f"https://wa.me/{clean_num(c['Phone'])}?text={urllib.parse.quote(rt)}")
+
 
 
 
